@@ -25,7 +25,7 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
-  #define SHORT_BUILD_VERSION "Version: 2.0.3"                                     //2.0.8
+  #define SHORT_BUILD_VERSION "Marlin 2.0.8"
 #endif
 
 /**
@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE __DATE__
+  #define STRING_DISTRIBUTION_DATE "2021-04-29"
 #endif
 
 /**
@@ -73,7 +73,7 @@
  * Define a generic printer name to be output to the LCD after booting Marlin.
  */
 #ifndef MACHINE_NAME
-  #define MACHINE_NAME "Aquila Printer"//"3D Printer"
+  #define MACHINE_NAME "3D Printer"
 #endif
 
 /**
@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "Voxelab"//"www.crealiyt.com"
+  #define WEBSITE_URL "marlinfw.org"
 #endif
 
 /**

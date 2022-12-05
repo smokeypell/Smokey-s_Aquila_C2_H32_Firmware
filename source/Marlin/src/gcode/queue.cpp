@@ -270,7 +270,6 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
   SERIAL_FLUSH();
   SERIAL_ECHOPGM(STR_RESEND);
   SERIAL_ECHOLN(serial_state[serial_ind.index].last_N + 1);
-  SERIAL_ECHOLNPGM(STR_OK);
 }
 
 static bool serial_data_available(serial_index_t index) {
@@ -554,24 +553,14 @@ void GCodeQueue::get_serial_commands() {
    */
   inline void GCodeQueue::get_sdcard_commands() {
     static uint8_t sd_input_state = PS_NORMAL;
-    uint32_t timerout=0;
+
     if (!IS_SD_PRINTING()) return;
 
-    int sd_count = 0;    
-    bool card_eof = card.eof();
-    while (!ring_buffer.full() && !card_eof) {
+    int sd_count = 0;
+    while (!ring_buffer.full() && !card.eof()) {
       const int16_t n = card.get();
-      card_eof = card.eof();
-      if (n < 0 && !card_eof) { 
-        SERIAL_ERROR_MSG(STR_SD_ERR_READ); 
-        HAL_watchdog_refresh();
-        if(++timerout>20){
-            timerout = 0;
-            kill(GET_TEXT(MSG_KILL_READCARD_FAILED));
-            return; 
-        }
-        continue;    
-      }
+      const bool card_eof = card.eof();
+      if (n < 0 && !card_eof) { SERIAL_ERROR_MSG(STR_SD_ERR_READ); continue; }
 
       CommandLine &command = ring_buffer.commands[ring_buffer.index_w];
       const char sd_char = (char)n;

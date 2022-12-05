@@ -56,7 +56,7 @@
 class Probe {
 public:
 
-  #if HAS_BED_PROBE
+  #if HAS_BED_PROBE 
 
     static xyz_pos_t offset;
     static xyz_pos_t default_probe_xyz_offset;
@@ -194,6 +194,14 @@ public:
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
+			static constexpr xyz_pos_t default_probe_xyz_offset =
+        #if HAS_BED_PROBE
+          NOZZLE_TO_PROBE_OFFSET
+        #else
+          {{ {0} }}
+        #endif
+      ;
+      static constexpr xy_pos_t default_probe_xy_offset = {{ {default_probe_xyz_offset.x,  default_probe_xyz_offset.y} }};
 
     public:
       static constexpr bool can_reach(float x, float y) {

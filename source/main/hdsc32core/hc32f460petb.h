@@ -54,6 +54,8 @@
 #ifndef __HC32F460PETB_H__
 #define __HC32F460PETB_H__
 
+#include <limits.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -840,9 +842,9 @@ typedef enum en_int_src
     INT_SDIOC2_SD           = 485u,
     
     /* CAN */
-    INT_CAN_INT             = 486u,
+    INT_CAN_INT              = 486u,
     
-    INT_MAX                 = 511u,
+    //INT_MAX                    = 511u,  //Commented out due to errors. (Error #40 : expected an identifier INT_MAX = 511u,) 
 }en_int_src_t;
 
 /******************************************************************************/

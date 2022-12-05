@@ -1,6 +1,6 @@
 
 /*
- * Auto generated Run-Time-Environment Component Configuration File
+ * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
  * Project: 'voxblab_lcd' 
@@ -14,7 +14,8 @@
 /*
  * Define the Device Header File: 
  */
-#define CMSIS_device_header "hc32f460p.h"
+#define CMSIS_device_header "HC32F460PETB.h"
+
 
 
 #endif /* RTE_COMPONENTS_H */

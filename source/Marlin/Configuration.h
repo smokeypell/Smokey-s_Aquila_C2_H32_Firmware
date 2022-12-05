@@ -117,8 +117,8 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "voxelab Aquila" // Who made the changes.
-//#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
+#define STRING_CONFIG_H_AUTHOR "Brent 'Smokey' Pell" // Who made the changes.
+#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -130,28 +130,18 @@
  * We encourage you to take advantage of this new feature and we also
  * respectfully request that you retain the unmodified Marlin boot screen.
  */
-//#define ENDER_3V2
-#define ENDER_3_MAX
+	
+// Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#define SHOW_BOOTSCREEN
 
-#if defined(ENDER_3_MAX)
-  #define CR10_STOCKDISPLAY
-#elif defined(ENDER_3V2)
-  #define DWIN_CREALITY_LCD
-#endif
+// Show the bitmap in Marlin/_Bootscreen.h on startup.
+#define SHOW_CUSTOM_BOOTSCREEN
 
-#ifdef  CR10_STOCKDISPLAY
+// Show the bitmap in Marlin/_Statusscreen.h on the status screen.
+//#define CUSTOM_STATUS_SCREEN_IMAGE
 
-  // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
-  #define SHOW_BOOTSCREEN
-
-  // Show the bitmap in Marlin/_Bootscreen.h on startup.
-  #define SHOW_CUSTOM_BOOTSCREEN
-
-  // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-  #define CUSTOM_STATUS_SCREEN_IMAGE
-
-    //#define SHOW_MARLIN_BOOTSCREEN
-#endif
+//#define SHOW_MARLIN_BOOTSCREEN
+	
 // @section machine
 
 /**
@@ -187,12 +177,11 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  // #define MOTHERBOARD BOARD_RAMPS_14_EFB
   #define MOTHERBOARD BOARD_CREALITY_V427
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Printer"
+#define CUSTOM_MACHINE_NAME "Aquila C2"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -888,11 +877,11 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 1500, 1000, 50, 3000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #define MAX_ACCEL_EDIT_VALUES       { 6000, 6000, 200, 20000 } // ...or, set your own edit limits
+  #define MAX_ACCEL_EDIT_VALUES       { 3000, 2000, 100, 6000 } // ...or, set your own edit limits
 #endif
 
 /**
@@ -903,9 +892,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          				 800    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION    1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -917,15 +906,15 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
-  #define DEFAULT_ZJERK  0.3
+  #define DEFAULT_XJERK    7.0
+  #define DEFAULT_YJERK   7.0
+  #define DEFAULT_ZJERK    0.3
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
   //#define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
-    #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
+    #define MAX_JERK_EDIT_VALUES { 10, 10, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
 
@@ -952,7 +941,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION  // May need to disable
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1002,7 +991,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
+#define PROBE_MANUALLY
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1117,7 +1106,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1130,7 +1119,7 @@
 #define Z_PROBE_FEEDRATE_FAST (4*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 4)
+#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
 
 /**
  * Probe Activation Switch
@@ -1294,23 +1283,9 @@
 // @section machine
 
 // The size of the printable area
-#ifdef ENDER_3_MAX
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_LENGTH   250
-#elif defined(ENDER_3V2)
-    #define X_BED_SIZE 220
-    #define Y_BED_SIZE 220
-    #define Z_LENGTH   250
-#elif defined(CR_6SE)
-    #define X_BED_SIZE  250
-    #define Y_BED_SIZE  250
-    #define Z_LENGTH    250
-#elif defined(CR_6MAX)
-    #define X_BED_SIZE  400
-    #define Y_BED_SIZE  400
-    #define Z_LENGTH    350
-#endif
+#define X_BED_SIZE 220
+#define Y_BED_SIZE 220
+#define Z_LENGTH   250
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1464,16 +1439,16 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-// #define AUTO_BED_LEVELING_BILINEAR
+//#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#define MESH_BED_LEVELING
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-//#define RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 //#define ENABLE_LEVELING_AFTER_G28
 
 /**
@@ -1481,8 +1456,8 @@
  */
 //#define PREHEAT_BEFORE_LEVELING
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP 120   // (°„C) Only applies to E0 at this time
-  #define LEVELING_BED_TEMP     50
+  #define LEVELING_NOZZLE_TEMP 200   // (°„C) Only applies to E0 at this time
+  #define LEVELING_BED_TEMP     60
 #endif
 
 /**
@@ -1494,7 +1469,7 @@
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
   // Set a height for the start of manual adjustment
-  #define MANUAL_PROBE_START_Z 0.2  // (mm) Comment out to use the last-measured height
+  #define MANUAL_PROBE_START_Z 0.1  // (mm) Comment out to use the last-measured height
 #endif
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
@@ -1515,11 +1490,11 @@
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-  //#define G26_MESH_VALIDATION
+  #define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°„C) Default nozzle temperature for G26.
+    #define MESH_TEST_HOTEND_TEMP  200    // (°„C) Default nozzle temperature for G26.
     #define MESH_TEST_BED_TEMP      60    // (°„C) Default bed temperature for G26.
     #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
     #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
@@ -1581,7 +1556,7 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 30          // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1593,21 +1568,21 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-// #define LCD_BED_LEVELING
+#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
-  #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
+  #define MESH_EDIT_Z_STEP  0.02 // (mm) Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
-  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
+  #define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
-//#define LEVEL_BED_CORNERS
+#define LEVEL_BED_CORNERS
 
 #if ENABLED(LEVEL_BED_CORNERS)
   #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
   #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
-  #define LEVEL_CORNERS_Z_HOP       4.0   // (mm) Z height of nozzle between leveling points
+  #define LEVEL_CORNERS_Z_HOP       2.0   // (mm) Z height of nozzle between leveling points
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
   //#define LEVEL_CORNERS_USE_PROBE
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)
@@ -1780,17 +1755,31 @@
 //
 // Preheat Constants - Up to 5 are supported without changes
 //
-#define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
-#define PREHEAT_1_TEMP_CHAMBER 35
-#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_1_LABEL                         "Warm Up"
+#define PREHEAT_1_TEMP_HOTEND              200
+#define PREHEAT_1_TEMP_BED                      60
+#define PREHEAT_1_FAN_SPEED                      0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "ABS"
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
-#define PREHEAT_2_TEMP_CHAMBER 35
-#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_2_LABEL                         "PLA"
+#define PREHEAT_2_TEMP_HOTEND              205
+#define PREHEAT_2_TEMP_BED                      60
+#define PREHEAT_2_FAN_SPEED                      0 // Value from 0 to 255
+
+#define PREHEAT_3_LABEL                       "PLA+"
+#define PREHEAT_3_TEMP_HOTEND               220
+#define PREHEAT_3_TEMP_BED                       60
+#define PREHEAT_3_FAN_SPEED                       0 // Value from 0 to 255
+
+#define PREHEAT_4_LABEL                       "PETG"
+#define PREHEAT_4_TEMP_HOTEND               235
+#define PREHEAT_4_TEMP_BED                       60
+#define PREHEAT_4_FAN_SPEED                       0 // Value from 0 to 255
+
+#define PREHEAT_5_LABEL                         "ABS"
+#define PREHEAT_5_TEMP_HOTEND               235
+#define PREHEAT_5_TEMP_BED                     110
+//#define PREHEAT_5_TEMP_CHAMBER           35
+#define PREHEAT_5_FAN_SPEED                      0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -2019,9 +2008,9 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 
 /**
- * Info Screen Style (0:Classic, 1:Pr??a)
+ * Info Screen Style (0:Classic, 1:Prusa)
  *
- * :[0:'Classic', 1:'Pr??a']
+ * :[0:'Classic', 1:'Prusa']
  */
 #define LCD_INFO_SCREEN_STYLE 0
 
@@ -2381,11 +2370,9 @@
 // This is RAMPS-compatible using a single 10-pin connector.
 // (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
 //
-// #define CR10_STOCKDISPLAY
+#define CR10_STOCKDISPLAY
+#define RET6_12864_LCD
 
-#ifdef  CR10_STOCKDISPLAY
-  #define RET6_12864_LCD
-#endif
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
@@ -2773,7 +2760,7 @@
 //#define RGB_LED
 //#define RGBW_LED
 
-#if EITHER(RGB_LED, RGBW_LED)
+#if ENABLED (RGB_LED, RGBW_LED)
   //#define RGB_LED_R_PIN 34
   //#define RGB_LED_G_PIN 43
   //#define RGB_LED_B_PIN 35
@@ -2782,7 +2769,7 @@
 
 // Support for Adafruit NeoPixel LED driver
 //#define NEOPIXEL_LED
-#if ENABLED(NEOPIXEL_LED)
+#if ENABLED (NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN     4       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
@@ -2794,7 +2781,7 @@
 
   // Support for second Adafruit NeoPixel LED driver controlled with M150 S1 ...
   //#define NEOPIXEL2_SEPARATE
-  #if ENABLED(NEOPIXEL2_SEPARATE)
+  #if ENABLED (NEOPIXEL2_SEPARATE)
     #define NEOPIXEL2_PIXELS      15  // Number of LEDs in the second strip
     #define NEOPIXEL2_BRIGHTNESS 127  // Initial brightness (0-255)
     #define NEOPIXEL2_STARTUP_TEST    // Cycle through colors at startup

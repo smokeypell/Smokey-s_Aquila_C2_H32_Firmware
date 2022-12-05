@@ -94,8 +94,12 @@ constexpr int nr_edge_points = level_corners_3_points ? 3 : 4;
 constexpr int available_points = nr_edge_points + ENABLED(LEVEL_CENTER_TOO);
 constexpr int center_index = TERN(LEVEL_CENTER_TOO, available_points - 1, -1);
 constexpr float inset_lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
-constexpr xy_pos_t lf { (X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1] },
-                   rb { (X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3] };
+constexpr xy_pos_t lf {{
+	{(X_MIN_BED) + inset_lfrb[0], (Y_MIN_BED) + inset_lfrb[1]}
+}},
+                   rb {{
+										 {(X_MAX_BED) - inset_lfrb[2], (Y_MAX_BED) - inset_lfrb[3]}
+										 }};
 
 static int8_t bed_corner;
 

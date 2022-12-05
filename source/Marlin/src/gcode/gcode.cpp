@@ -270,8 +270,6 @@ void GcodeSuite::dwell(millis_t time) {
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   KEEPALIVE_STATE(IN_HANDLER);
 
- //SERIAL_ECHOLNPAIR("Cmd: ", parser.command_ptr);
-
  /**
   * Block all Gcodes except M511 Unlock Printer, if printer is locked
   * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
@@ -1055,19 +1053,14 @@ void GcodeSuite::process_next_command() {
 
 void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
-  char cmd[200 + 1]={0};
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
     const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
-    if(len>=sizeof(cmd)){
-        SERIAL_ECHOLNPAIR("Len max Err:",len);
-        break;
-    }
-    memcpy_P(cmd, pgcode, len);                      // Copy the command to the stack
+    char cmd[len + 1];                                // Allocate a stack buffer
+    strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
     cmd[len] = '\0';                                  // End with a nul
-    //SERIAL_ECHOLNPAIR("pgcode:",pgcode,"len:",len,"-->cmd:",cmd);
     parser.parse(cmd);                                // Parse the command
-    process_parsed_command(true);                     // Process it (no "ok")
+    process_parsed_command(true);                     // Process it
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
@@ -1080,7 +1073,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
-    process_parsed_command(true);                     // Process it (no "ok")
+    process_parsed_command(true);                     // Process it
     if (!delim) break;                                // Last command?
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
