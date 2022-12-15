@@ -33,8 +33,8 @@
  * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
 void GcodeSuite::M211() {
-  const xyz_pos_t l_soft_min = soft_endstop.min,
-                  l_soft_max = soft_endstop.max;
+  const xyz_pos_t l_soft_min = soft_endstop.min.asLogical(),
+                  l_soft_max = soft_endstop.max.asLogical();
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
   if (parser.seen('S')) soft_endstop._enabled = parser.value_bool();

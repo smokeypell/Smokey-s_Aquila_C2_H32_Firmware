@@ -225,6 +225,7 @@ Nozzle nozzle;
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
+  // Aquila
   float Nozzle::park_mode_0_height(const_float_t park_z) {
     // Apply a minimum raise, if specified. Use park.z as a minimum height instead.
     return _MAX(park_z,                       // Minimum height over 0 based on input
@@ -236,7 +237,8 @@ Nozzle nozzle;
       )
     );
   }
-
+  // End Aquila
+  
   void Nozzle::park(const uint8_t z_action, const xyz_pos_t &park/*=NOZZLE_PARK_POINT*/) {
     constexpr feedRate_t fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
@@ -249,12 +251,28 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
+      // Marlin 2.0.8
+			/*
+      default: {
+        // Apply a minimum raise, overriding G27 Z
+        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
+          #ifdef NOZZLE_PARK_Z_RAISE_MIN
+            + NOZZLE_PARK_Z_RAISE_MIN
+          #endif
+        );
+        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
+      } break;
+			*/
+      // End Marlin 2.0.8
+      
+      // Aquila
       default: // Raise by NOZZLE_PARK_Z_RAISE_MIN, use park.z as a minimum height
         do_blocking_move_to_z(park_mode_0_height(park.z), fr_z);
         break;
+      // End Aquila
     }
 
-    do_blocking_move_to_xy(
+		do_blocking_move_to_xy(
       TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
       TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
       fr_xy

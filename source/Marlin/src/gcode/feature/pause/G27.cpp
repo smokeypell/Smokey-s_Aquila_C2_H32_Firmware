@@ -34,9 +34,13 @@
  */
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
-  constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
+	
+	constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT; // Aquila
+	
   if (homing_needed_error()) return;
-  nozzle.park(parser.ushortval('P'),park_point);
+  
+	//nozzle.park(parser.ushortval('P')); // Marlin 2.0.8
+	nozzle.park(parser.ushortval('P'),park_point); // Aquila
 }
 
 #endif // NOZZLE_PARK_FEATURE

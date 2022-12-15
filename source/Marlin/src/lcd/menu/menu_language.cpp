@@ -26,7 +26,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MULTI_LANGUAGE && HAS_MARLINUI_U8GLIB
+//#if HAS_MULTI_LANGUAGE // Marlin 2.0.8
+#if HAS_MULTI_LANGUAGE && HAS_MARLINUI_U8GLIB // Aquila
 
 #include "menu_item.h"
 #include "../../MarlinCore.h"
@@ -49,6 +50,8 @@ void menu_language() {
       MENU_ITEM_P(function, GET_LANG(LCD_LANGUAGE_4)::LANGUAGE, []{ set_lcd_language(3); });
       #if NUM_LANGUAGES > 4
         MENU_ITEM_P(function, GET_LANG(LCD_LANGUAGE_5)::LANGUAGE, []{ set_lcd_language(4); });
+        
+        // Aquila
         #if NUM_LANGUAGES > 5
           MENU_ITEM_P(function, GET_LANG(LCD_LANGUAGE_6)::LANGUAGE, []{ set_lcd_language(5); });
           #if NUM_LANGUAGES > 6
@@ -64,13 +67,16 @@ void menu_language() {
             #endif
           #endif
         #endif
+        // End Aquila
+        
       #endif
     #endif
   #endif
 
   END_MENU();
-  LCD_MESSAGEPGM(WELCOME_MSG);
-  //ui.return_to_status();
+  
+  LCD_MESSAGEPGM(WELCOME_MSG); // Aquila
+  //ui.return_to_status(); // Aquila
 }
 
 #endif // HAS_MULTI_LANGUAGE

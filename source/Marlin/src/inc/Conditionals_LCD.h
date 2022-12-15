@@ -640,6 +640,7 @@
   #endif
 #endif
 
+// Aquila
 /**
  * Disable unused SINGLENOZZLE sub-options
  */
@@ -649,6 +650,7 @@
 #if !BOTH(HAS_FAN, SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_FAN
 #endif
+//End Aquila
 
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed
@@ -973,7 +975,8 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #define LCD_SERIAL_PORT 1 // Creality 4.x board
+    #define LCD_SERIAL_PORT 1 // Aquila
+    //#define LCD_SERIAL_PORT 3 // Creality 4.x board // Marlin 2.0.8
   #endif
 #endif
 

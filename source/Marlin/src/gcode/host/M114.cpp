@@ -57,7 +57,7 @@
   void report_current_position_detail() {
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
-    report_xyz(current_position);
+    report_xyz(current_position.asLogical());
 
     // Cartesian position in native machine space
     SERIAL_ECHOPGM("Raw:    ");

@@ -128,7 +128,8 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 //
 
 #ifndef FINE_MANUAL_MOVE
-  #define FINE_MANUAL_MOVE 0.025f
+  //#define FINE_MANUAL_MOVE 0.025 // Marlin 2.0.8
+  #define FINE_MANUAL_MOVE 0.025f // Aquila
 #endif
 
 screenFunc_t _manual_move_func_ptr;
@@ -392,10 +393,7 @@ void menu_motion() {
   // Disable Steppers
   //
   GCODES_ITEM(MSG_DISABLE_STEPPERS, PSTR("M84"));
-//  if(!printer_busy()){
-//      ACTION_ITEM(MSG_FILAMENTLOAD,  ui.auto_Feeding);
-//      ACTION_ITEM(MSG_FILAMENTUNLOAD, ui.auto_Desizing);
-//  }
+
   END_MENU();
 }
 

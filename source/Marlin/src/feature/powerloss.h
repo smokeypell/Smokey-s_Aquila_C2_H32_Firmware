@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(GCODE_REPEAT_MARKERS)
+  #include "../feature/repeat.h"
+#endif
+
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -40,25 +44,34 @@
 
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
-//#define SAVE_INFO_INTERVAL_MS 1000
+//#define SAVE_INFO_INTERVAL_MS 0 // Aquila value is 1000
 
 typedef struct {
   uint8_t valid_head;
 
   // Machine state
   xyze_pos_t current_position;
+  //uint16_t feedrate; // Marlin 2.0.8
   float zraise;
 
-  #if HAS_HOME_OFFSET
+  // Repeat information // Not in Aquila
+  //#if ENABLED(GCODE_REPEAT_MARKERS)
+    //Repeat stored_repeat;
+  //#endif
+
+  //#if ENABLED(HAS_HOME_OFFSET)
+  #if HAS_HOME_OFFSET // Aquila
     xyz_pos_t home_offset;
   #endif
-  #if HAS_POSITION_SHIFT
+  //#if ENABLED(HAS_POSITION_SHIFT)
+  #if HAS_POSITION_SHIFT // Aquila
     xyz_pos_t position_shift;
   #endif
-
-  uint16_t feedrate;
-
-  #if EXTRUDERS > 1
+  
+  uint16_t feedrate; // Aquila  -  Marlin positioned this above
+  
+  //#if ENABLED(HAS_MULTI_EXTRUDER)
+  #if EXTRUDERS > 1 // Aquila
     uint8_t active_extruder;
   #endif
 
@@ -67,20 +80,25 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-  #if HAS_HOTEND
+  //#if ENABLED(HAS_HOTEND)
+    //celsius_t target_temperature[HOTENDS];
+  //#endif
+  #if HAS_HOTEND // Aquila
     int16_t target_temperature[HOTENDS];
   #endif
-
-  #if HAS_HEATED_BED
+  //#if ENABLED(HAS_HEATED_BED)
+    //celsius_t target_temperature_bed;
+  //#endif
+  #if HAS_HEATED_BED // Aquila
     int16_t target_temperature_bed;
   #endif
-
-  #if HAS_FAN
+  #if ENABLED(HAS_FAN)
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
-  #if HAS_LEVELING
-    bool leveling;
+  //#if ENABLED(HAS_LEVELING)
+  #if HAS_LEVELING // Aquila
+    bool leveling; // Aquila
     float fade;
   #endif
 
@@ -97,15 +115,33 @@ typedef struct {
     #endif
   #endif
 
+  // Aquila  - Marlin has this in position below
   // Relative axis modes
-  uint8_t axis_relative;
-
+  uint8_t axis_relative;					
+  // End Aquila					
   // SD Filename and position
   char sd_filename[MAXPATHNAMELENGTH];
   volatile uint32_t sdpos;
 
   // Job elapsed time
   millis_t print_job_elapsed;
+
+  /* Marlin 2.0.8
+  // Relative axis modes
+  uint8_t axis_relative;
+  */
+  
+
+  /*--------- Not in Aquila -----------------
+  // Misc. Marlin flags
+  struct {
+    bool dryrun:1;                // M111 S8
+    bool allow_cold_extrusion:1;  // M302 P1
+    #if ENABLED(HAS_LEVELING)
+      bool leveling:1;
+    #endif
+  } flag;
+  ------------------------------------------ */
 
   uint8_t valid_foot;
 
@@ -141,7 +177,6 @@ class PrintJobRecovery {
           SET_INPUT(POWER_LOSS_PIN);
         #endif
       #endif
-      
     }
 
     // Track each command's file offsets
@@ -187,7 +222,8 @@ class PrintJobRecovery {
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void retract_and_lift(const float &zraise);
+      //static void retract_and_lift(const_float_t zraise);
+	  static void retract_and_lift(const float &zraise); // Aquila
     #endif
 
     #if PIN_EXISTS(POWER_LOSS)

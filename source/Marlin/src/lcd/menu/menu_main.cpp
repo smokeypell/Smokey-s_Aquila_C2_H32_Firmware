@@ -253,20 +253,24 @@ void menu_main() {
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
-    if(!IS_SD_PRINTING()&& (ui.load_flag || ui.unload_flag)){
-        if(ui.load_flag){
-            ACTION_ITEM(MSG_STOP_LOAD,ui.abort_load);
-        }else{
+    
+  // Aquila
+  if(!IS_SD_PRINTING()&& (ui.load_flag || ui.unload_flag)){
+      if(ui.load_flag){
+        ACTION_ITEM(MSG_STOP_LOAD,ui.abort_load);
+      }else{
             ACTION_ITEM(MSG_STOP_UNLOAD,ui.abort_load);
-        }
-    }
-    else{
-  if (busy) {
-    #if MACHINE_CAN_PAUSE
-      ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
-    #endif
-    #if MACHINE_CAN_STOP
-        #if ENABLED(SD_MENU_CONFIRM_STOP)
+      }
+  }
+  else{
+  // End Aquila
+    
+    if (busy) {
+      #if MACHINE_CAN_PAUSE
+        ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
+      #endif
+      #if MACHINE_CAN_STOP
+        #if ENABLED(SD_MENU_CONFIRM_STOP) // Aquila
           SUBMENU(MSG_STOP_PRINT, []{
             MenuItem_confirm::select_screen(
               GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
@@ -274,239 +278,271 @@ void menu_main() {
               GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
             );
           });
-        #else
-        ACTION_ITEM(MSG_STOP_PRINT, ui.abort_print);
-        #endif
-    #endif
-
-    #if ENABLED(GCODE_REPEAT_MARKERS)
-      if (repeat.is_active())
-        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
-    #endif
-
-    SUBMENU(MSG_TUNE, menu_tune);
-
-    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
-      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
-    #endif
-  }
-  else {
-
-    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
-
-      // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
-
-      //
-      // Run Auto Files
-      //
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
+        #else // Aquila
+          ACTION_ITEM(MSG_STOP_PRINT, ui.abort_print); // Aquila
+        #endif // Aquila
+        
       #endif
 
-      if (card_detected) {
-        if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
-          /*
-          #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
-          #else
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
-          #endif
-          */
-        }
-      }
-      else {
-        #if PIN_EXISTS(SD_DETECT)
-       //ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-        GCODES_ITEM(MSG_NO_MEDIA, nullptr);
-        #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
-        #endif
-      }
+      #if ENABLED(GCODE_REPEAT_MARKERS)
+        if (repeat.is_active())
+        ACTION_ITEM(MSG_END_LOOPS, repeat.cancel);
+      #endif
 
-    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
+      SUBMENU(MSG_TUNE, menu_tune);
 
-    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused())){
-        ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
-        #if MACHINE_CAN_STOP
-        ACTION_ITEM(MSG_STOP_PRINT, ui.abort_print);
-        #endif
-    
+      #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+        SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+      #endif
+    }
+    else {
+      #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
 
-    #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
-      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
-    #endif
-
-    #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
-      SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
-    #endif
-		}
-		else
-		{
-    SUBMENU(MSG_MOTION, menu_motion);
-  
-
-  #if HAS_CUTTER
-    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
-  #endif
-
-  #if HAS_TEMPERATURE
-    SUBMENU(MSG_TEMPERATURE, menu_temperature);
-  #endif
-
-#if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
-  
-      if (!busy) {
-  
-        // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
-  
+        // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
         //
-        // Autostart
+        // Run Auto Files
         //
-    #if ENABLED(MENU_ADDAUTOSTART)
+        #if ENABLED(MENU_ADDAUTOSTART)
           ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
-    #endif
-  
+        #endif
+
         if (card_detected) {
           if (!card_open) {
-            /*
-        #if PIN_EXISTS(SD_DETECT)
-              GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
-        #else
-              GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
-        #endif
-        */
             SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+          
+            /* // Marlin 2.0.8  
+            #if PIN_EXISTS(SD_DETECT)
+              GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
+            #else
+              GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+            #endif
+            */
           }
         }
         else {
-      #if PIN_EXISTS(SD_DETECT)
-          //ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-           GCODES_ITEM(MSG_NO_MEDIA, nullptr);
-      #else
+          #if PIN_EXISTS(SD_DETECT)
+        
+            //ACTION_ITEM(MSG_NO_MEDIA, nullptr); // Marlin 2.0.8
+            GCODES_ITEM(MSG_NO_MEDIA, nullptr); // Aquila
+          #else
             GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
-      #endif
+          #endif
         }
-      }
-  
-#endif // HAS_ENCODER_WHEEL && SDSUPPORT
+      #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-  #if HAS_POWER_MONITOR
-    SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
-  #endif
-
-  #if ENABLED(MIXING_EXTRUDER)
-    SUBMENU(MSG_MIXER, menu_mixer);
-  #endif
-
-  #if ENABLED(MMU2_MENUS)
-    if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
-  #endif
-
-  SUBMENU(MSG_CONFIGURATION, menu_configuration);
-
-  #if ENABLED(CUSTOM_MENU_MAIN)
-    if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
-      #ifdef CUSTOM_MENU_MAIN_TITLE
-        SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
-      #else
-        SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
-      #endif
-    }
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
-        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
-    #else
-      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
-    #endif
-  #endif
-
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
-  #endif
-
-  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
-    SUBMENU(MSG_LEDS, menu_led);
-  #endif
-
-  //
-  // Switch power on/off
-  //
-  #if ENABLED(PSU_CONTROL)
-    if (powersupply_on)
-      GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
-    else
-      GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
-  #endif
-
-
-  #if HAS_SERVICE_INTERVALS
-    static auto _service_reset = [](const int index) {
-      print_job_timer.resetServiceInterval(index);
-      ui.completion_feedback();
-      ui.reset_status();
-      ui.return_to_status();
-    };
-    #if SERVICE_INTERVAL_1 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
-        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(1); }, ui.goto_previous_screen,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
-      );
-    #endif
-    #if SERVICE_INTERVAL_2 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
-        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(2); }, ui.goto_previous_screen,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
-      );
-    #endif
-    #if SERVICE_INTERVAL_3 > 0
-      CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
-        MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(3); }, ui.goto_previous_screen,
-        GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
-      );
-    #endif
-  #endif
-
-  #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
-    #if ENABLED(GAMES_EASTER_EGG)
-      SKIP_ITEM();
-      SKIP_ITEM();
-      SKIP_ITEM();
-    #endif
-    // Game sub-menu or the individual game
-    {
-      SUBMENU(
-        #if HAS_GAME_MENU
-          MSG_GAMES, menu_game
-        #elif ENABLED(MARLIN_BRICKOUT)
-          MSG_BRICKOUT, brickout.enter_game
-        #elif ENABLED(MARLIN_INVADERS)
-          MSG_INVADERS, invaders.enter_game
-        #elif ENABLED(MARLIN_SNAKE)
-          MSG_SNAKE, snake.enter_game
-        #elif ENABLED(MARLIN_MAZE)
-          MSG_MAZE, maze.enter_game
+      //if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused())) // Marlin 2.0.8
+        //ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print); // Marlin 2.0.8
+    
+      // Aquila 
+      if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused())){
+        ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
+        #if MACHINE_CAN_STOP
+          ACTION_ITEM(MSG_STOP_PRINT, ui.abort_print);
         #endif
-      );
-    }
-  #endif
-		ACTION_ITEM(MSG_FILAMENTLOAD, ui.auto_Feeding);
-		ACTION_ITEM(MSG_FILAMENTUNLOAD,ui.auto_Desizing);
-  #if HAS_MULTI_LANGUAGE
-    SUBMENU(LANGUAGE, menu_language);
-  #endif
-    }
-	}
-  END_MENU();
-}
-}
+        // End Aquila
+
+        #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+          ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+        #endif
+
+        #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
+          SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
+        #endif
+      }
+      else {
+        SUBMENU(MSG_MOTION, menu_motion);
+        #if HAS_CUTTER
+          SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
+        #endif
+
+        #if HAS_TEMPERATURE
+          SUBMENU(MSG_TEMPERATURE, menu_temperature);
+        #endif
+  
+        // Aquila ---------------------------------------------------------------
+        #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
+          if (!busy) {
+            // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+            //
+            // Autostart
+            //
+            #if ENABLED(MENU_ADDAUTOSTART)
+              ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
+            #endif
+  
+            if (card_detected) {
+              if (!card_open) {
+                /*
+                #if PIN_EXISTS(SD_DETECT)
+                  GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
+                #else
+                  GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+                #endif
+                */
+                SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+              }
+            }
+            else {
+              #if PIN_EXISTS(SD_DETECT)
+                //ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+                GCODES_ITEM(MSG_NO_MEDIA, nullptr);
+              #else
+                GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
+              #endif
+            }
+          }
+        #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+        // End Aquila --------------------------------------------------------------
+
+        #if HAS_POWER_MONITOR
+          SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
+        #endif
+
+        #if ENABLED(MIXING_EXTRUDER)
+          SUBMENU(MSG_MIXER, menu_mixer);
+        #endif
+
+        #if ENABLED(MMU2_MENUS)
+          if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
+        #endif
+
+        SUBMENU(MSG_CONFIGURATION, menu_configuration);
+
+        #if ENABLED(CUSTOM_MENU_MAIN)
+          if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
+            #ifdef CUSTOM_MENU_MAIN_TITLE
+              SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
+            #else
+              SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
+            #endif
+          }
+        #endif
+
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+            if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+              GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+            else
+              SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+          #else
+            SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
+          #endif
+        #endif
+
+        #if ENABLED(LCD_INFO_MENU)
+          SUBMENU(MSG_INFO_MENU, menu_info);
+        #endif
+
+        #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+          SUBMENU(MSG_LEDS, menu_led);
+        #endif
+
+        //
+        // Switch power on/off
+        //
+        #if ENABLED(PSU_CONTROL)
+          if (powersupply_on)
+            GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+          else
+            GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
+        #endif
+
+        /* // Marlin 2.0.8
+        #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
+          if (!busy) {
+            // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+            //
+            // Autostart
+            //
+            #if ENABLED(MENU_ADDAUTOSTART)
+              ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
+            #endif
+
+            if (card_detected) {
+              if (!card_open) {
+                #if PIN_EXISTS(SD_DETECT)
+                  GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
+                #else
+                  GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+                #endif
+                SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+              }
+            }
+            else {
+              #if PIN_EXISTS(SD_DETECT)
+                ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+              #else
+                GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
+              #endif
+            }
+          }
+        #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+        */ // End Marlin
+
+        #if HAS_SERVICE_INTERVALS
+          static auto _service_reset = [](const int index) {
+            print_job_timer.resetServiceInterval(index);
+            ui.completion_feedback();
+            ui.reset_status();
+            ui.return_to_status();
+          };
+          #if SERVICE_INTERVAL_1 > 0
+            CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
+              MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+              []{ _service_reset(1); }, ui.goto_previous_screen,
+              GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
+            );
+          #endif
+          #if SERVICE_INTERVAL_2 > 0
+            CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
+              MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+              []{ _service_reset(2); }, ui.goto_previous_screen,
+              GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
+            );
+          #endif
+          #if SERVICE_INTERVAL_3 > 0
+            CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
+              MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
+              []{ _service_reset(3); }, ui.goto_previous_screen,
+              GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
+            );
+          #endif
+        #endif
+
+        #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+          #if ENABLED(GAMES_EASTER_EGG)
+            SKIP_ITEM();
+            SKIP_ITEM();
+            SKIP_ITEM();
+          #endif
+          // Game sub-menu or the individual game
+        {
+          SUBMENU(
+            #if HAS_GAME_MENU
+              MSG_GAMES, menu_game
+            #elif ENABLED(MARLIN_BRICKOUT)
+              MSG_BRICKOUT, brickout.enter_game
+            #elif ENABLED(MARLIN_INVADERS)
+              MSG_INVADERS, invaders.enter_game
+            #elif ENABLED(MARLIN_SNAKE)
+              MSG_SNAKE, snake.enter_game
+            #elif ENABLED(MARLIN_MAZE)
+              MSG_MAZE, maze.enter_game
+            #endif
+          );
+        }
+        #endif
+  
+        ACTION_ITEM(MSG_FILAMENTLOAD, ui.auto_Feeding); // Aquila
+        ACTION_ITEM(MSG_FILAMENTUNLOAD,ui.auto_Desizing); // Aquila
+        #if HAS_MULTI_LANGUAGE
+          SUBMENU(LANGUAGE, menu_language);
+        #endif
+  
+      } // Aquila
+    } // Aquila
+    END_MENU();
+  }
+} // Aquila
 
 #endif // HAS_LCD_MENU

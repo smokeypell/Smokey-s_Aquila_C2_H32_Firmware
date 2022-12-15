@@ -399,7 +399,7 @@ void CardReader::printFilename() {
 }
 
 void CardReader::mount() {
-  delay(5);  // Power on
+  delay(5);  // Power on - Aquila
   flag.mounted = false;
   if (root.isOpen()) root.close();
 
@@ -486,12 +486,13 @@ void CardReader::manage_media() {
  * Used by M22, "Release Media", manage_media.
  */
 void CardReader::release() {
+// Commented out in Aquila
 /*
   // Card removed while printing? Abort!
   if (IS_SD_PRINTING())
     card.flag.abort_sd_printing = true;
   else
-    */
+*/
     endFilePrint();
 
   flag.mounted = false;
@@ -650,7 +651,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 }
 
 inline void echo_write_to_file(const char * const fname) {
-  //SERIAL_ECHOLNPAIR(STR_SD_WRITE_TO_FILE, fname);
+  //SERIAL_ECHOLNPAIR(STR_SD_WRITE_TO_FILE, fname); // Commented out in Aquila
 }
 
 //
@@ -892,7 +893,8 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
   while (item_name_adr) {
     // Find next subdirectory delimiter
-    const char * name_end = strchr(item_name_adr, '/');
+    //char * const name_end = strchr(item_name_adr, '/'); // Marlin 2.0.8
+    const char * name_end = strchr(item_name_adr, '/'); // Aquila
 
     // Last atom in the path? Item found.
     if (name_end <= item_name_adr) break;

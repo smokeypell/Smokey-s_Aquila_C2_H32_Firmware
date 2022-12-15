@@ -110,7 +110,6 @@ void GcodeSuite::M104() {
   }
 
   TERN_(AUTOTEMP, planner.autotemp_M104_M109());
-	TERN_(HAS_LCD_MENU,ui.clr_autoflag());
 }
 
 /**
@@ -128,8 +127,8 @@ void GcodeSuite::M104() {
  *  B<max>    : Maximum temperature, in current units.
  *
  * Examples
- *  M109 S100 : Set target to 100▲. Wait until the hotend is at or above 100▲.
- *  M109 R150 : Set target to 150▲. Wait until the hotend gets close to 150▲.
+ *  M109 S100 : Set target to 100째. Wait until the hotend is at or above 100째.
+ *  M109 R150 : Set target to 150째. Wait until the hotend gets close to 150째.
  *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.

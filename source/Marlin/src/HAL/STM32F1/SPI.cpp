@@ -28,7 +28,7 @@
  * @author Marti Bolivar <mbolivar@leaflabs.com>
  * @brief Wirish SPI implementation.
  */
-#ifdef USE_SPI
+#ifdef USE_SPI // Aquila
 
 #ifdef __STM32F1__
 
@@ -727,5 +727,7 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
 }
 
 SPIClass SPI(SPI_DEVICE);
+
 #endif // __STM32F1__
-#endif
+
+#endif  // Aquila

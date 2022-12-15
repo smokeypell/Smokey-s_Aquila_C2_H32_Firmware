@@ -749,7 +749,10 @@ void MarlinSettings::postprocess() {
       #if HAS_BED_PROBE
         const xyz_pos_t &zpo = probe.offset;
       #else
-        constexpr xyz_pos_t zpo={0};
+        
+        //constexpr xyz_pos_t zpo{0}; // Marlin 2.0.8
+        constexpr xyz_pos_t zpo={0}; // Aquila
+        
       #endif
       EEPROM_WRITE(zpo);
     }
@@ -776,7 +779,10 @@ void MarlinSettings::postprocess() {
           "Bilinear Z array is the wrong size."
         );
       #else
-        const xy_pos_t bilinear_start={0}, bilinear_grid_spacing={0};
+        
+        //const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0}; // Marlin 2.0.8
+        const xy_pos_t bilinear_start={0}, bilinear_grid_spacing={0}; // Aquila
+        
       #endif
 
       const uint8_t grid_max_x = TERN(AUTO_BED_LEVELING_BILINEAR, GRID_MAX_POINTS_X, 3),
@@ -1345,7 +1351,10 @@ void MarlinSettings::postprocess() {
         const xyz_float_t &backlash_distance_mm = backlash.distance_mm;
         const uint8_t &backlash_correction = backlash.correction;
       #else
-        const xyz_float_t backlash_distance_mm={0};
+        
+        //const xyz_float_t backlash_distance_mm{0}; // Marlin 2.0.8
+        const xyz_float_t backlash_distance_mm={0}; // Aquila
+        
         const uint8_t backlash_correction = 0;
       #endif
       #if ENABLED(BACKLASH_GCODE) && defined(BACKLASH_SMOOTHING_MM)

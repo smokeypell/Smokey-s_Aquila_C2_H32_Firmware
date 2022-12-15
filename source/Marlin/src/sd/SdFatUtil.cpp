@@ -42,12 +42,24 @@
  */
 #ifdef __arm__
 
-  //extern "C" char* sbrk(int incr);
+  //extern "C" char* sbrk(int incr); // Commented out in Aquila
+  
+  // Marlin 2.0.8
+  /*
+  int SdFatUtil::FreeRam() {
+    char top;
+    return &top - reinterpret_cast<char*>(sbrk(0));
+  }
+  */
+  // End Marlin 2.0.8
+  
+  // Aquila
   int SdFatUtil::FreeRam() {
     char top=0;
     //return &top - reinterpret_cast<char*>(sbrk(0));
     return top;
   }
+  // End Aquila
 
 #else
 

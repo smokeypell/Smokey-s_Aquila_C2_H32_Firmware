@@ -1,0 +1,8 @@
+
+------------------------------------------------------------------------------------------------------
+error:  #3629: braces cannot be omitted for this subobject initializer
+
+https://stackoverflow.com/questions/16985687/brace-elision-in-stdarray-initialization
+https://stackoverflow.com/questions/11734861/when-can-outer-braces-be-omitted-in-an-initializer-list
+
+------------------------------------------------------------------------------------------------------

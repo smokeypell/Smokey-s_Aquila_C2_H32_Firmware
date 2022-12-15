@@ -192,7 +192,10 @@ public:
   static inline bool eof() { return sdpos >= filesize; }
   static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
-  static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+  
+  //static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; } // Marlin 2.0.8
+  static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); } // Aquila
+  
   static inline int16_t read(void *buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 

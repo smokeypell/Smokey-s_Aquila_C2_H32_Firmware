@@ -136,9 +136,10 @@
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
 #define SHOW_CUSTOM_BOOTSCREEN
+//#define BOOTSCREEN_INVERTED // Added to use inverted custom bootscreen. - Smokey
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#define CUSTOM_STATUS_SCREEN_IMAGE
 
 //#define SHOW_MARLIN_BOOTSCREEN
 	
@@ -170,14 +171,14 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 115200
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_CREALITY_V427
+  #define MOTHERBOARD BOARD_VOXELAB_V110 // Custom board for Aquila C2 - Smokey
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -563,7 +564,8 @@
     // #define DEFAULT_Kp  22.20
     // #define DEFAULT_Ki   1.08
     // #define DEFAULT_Kd 114.00
-      /*Ender-3 max*/
+     
+		 /*Aquila C2*/
       #define DEFAULT_Kp 28.72
       #define DEFAULT_Ki 2.62
       #define DEFAULT_Kd 78.81
@@ -608,6 +610,8 @@
   // #define DEFAULT_bedKp 10.00
   // #define DEFAULT_bedKi .023
   // #define DEFAULT_bedKd 305.4
+	
+	/* Aquila C2 */
   #define DEFAULT_bedKp 462.10
   #define DEFAULT_bedKi 85.47
   #define DEFAULT_bedKd 624.59
@@ -866,7 +870,7 @@
  */
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
 
-//#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
+#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
   #define MAX_FEEDRATE_EDIT_VALUES    { 600, 600, 10, 50 } // ...or, set your own edit limits
 #endif
@@ -879,7 +883,7 @@
  */
 #define DEFAULT_MAX_ACCELERATION      { 1500, 1000, 50, 3000 }
 
-//#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
+#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
   #define MAX_ACCEL_EDIT_VALUES       { 3000, 2000, 100, 6000 } // ...or, set your own edit limits
 #endif
@@ -912,7 +916,7 @@
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
-  //#define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
+  #define LIMITED_JERK_EDITING        // Limit edit via M205 or LCD to DEFAULT_aJERK * 2
   #if ENABLED(LIMITED_JERK_EDITING)
     #define MAX_JERK_EDIT_VALUES { 10, 10, 0.6, 10 } // ...or, set your own edit limits
   #endif
@@ -941,7 +945,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION  // May need to disable
+#define S_CURVE_ACCELERATION  // May need to disable - Testing to see if causes issues - Smokey
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -991,7 +995,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#define PROBE_MANUALLY
+#define PROBE_MANUALLY  // Required for Manual Mesh Bed Leveling - Smokey
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1157,7 +1161,7 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-#define MULTIPLE_PROBING 3
+#define MULTIPLE_PROBING 2
 //#define EXTRA_PROBING    1
 
 /**
@@ -1213,8 +1217,8 @@
 // Require minimum nozzle and/or bed temperature for probing
 //#define PREHEAT_BEFORE_PROBING
 #if ENABLED(PREHEAT_BEFORE_PROBING)
-  #define PROBING_NOZZLE_TEMP 120   // (°„C) Only applies to E0 at this time
-  #define PROBING_BED_TEMP     50
+  #define PROBING_NOZZLE_TEMP 180   // (°„C) Only applies to E0 at this time
+  #define PROBING_BED_TEMP     55
 #endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
@@ -1456,8 +1460,8 @@
  */
 //#define PREHEAT_BEFORE_LEVELING
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP 200   // (°„C) Only applies to E0 at this time
-  #define LEVELING_BED_TEMP     60
+  #define LEVELING_NOZZLE_TEMP 190   // (°„C) Only applies to E0 at this time
+  #define LEVELING_BED_TEMP     55
 #endif
 
 /**
@@ -1556,8 +1560,8 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 30          // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
+  #define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -1588,7 +1592,7 @@
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)
     #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
-    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
+    #define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
 
   /**
@@ -1756,29 +1760,33 @@
 // Preheat Constants - Up to 5 are supported without changes
 //
 #define PREHEAT_1_LABEL                         "Warm Up"
-#define PREHEAT_1_TEMP_HOTEND              200
-#define PREHEAT_1_TEMP_BED                      60
+#define PREHEAT_1_TEMP_HOTEND              195
+#define PREHEAT_1_TEMP_BED                      55
+//#define PREHEAT_1_TEMP_CHAMBER               0
 #define PREHEAT_1_FAN_SPEED                      0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL                         "PLA"
-#define PREHEAT_2_TEMP_HOTEND              205
-#define PREHEAT_2_TEMP_BED                      60
+#define PREHEAT_2_TEMP_HOTEND              200
+#define PREHEAT_2_TEMP_BED                      55
+//#define PREHEAT_2_TEMP_CHAMBER               0
 #define PREHEAT_2_FAN_SPEED                      0 // Value from 0 to 255
 
 #define PREHEAT_3_LABEL                       "PLA+"
 #define PREHEAT_3_TEMP_HOTEND               220
-#define PREHEAT_3_TEMP_BED                       60
+#define PREHEAT_3_TEMP_BED                       55
+//#define PREHEAT_3_TEMP_CHAMBER               0
 #define PREHEAT_3_FAN_SPEED                       0 // Value from 0 to 255
 
 #define PREHEAT_4_LABEL                       "PETG"
-#define PREHEAT_4_TEMP_HOTEND               235
-#define PREHEAT_4_TEMP_BED                       60
+#define PREHEAT_4_TEMP_HOTEND               230
+#define PREHEAT_4_TEMP_BED                       55
+//#define PREHEAT_4_TEMP_CHAMBER               0
 #define PREHEAT_4_FAN_SPEED                       0 // Value from 0 to 255
 
 #define PREHEAT_5_LABEL                         "ABS"
 #define PREHEAT_5_TEMP_HOTEND               235
-#define PREHEAT_5_TEMP_BED                     110
-//#define PREHEAT_5_TEMP_CHAMBER           35
+#define PREHEAT_5_TEMP_BED                     100
+//#define PREHEAT_5_TEMP_CHAMBER               0
 #define PREHEAT_5_FAN_SPEED                      0 // Value from 0 to 255
 
 /**
@@ -1967,22 +1975,9 @@
  * 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian',
  *  'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
-// #define USE_CHINESE_LANGUAGE
- 
- #ifdef USE_CHINESE_LANGUAGE
-#define LCD_LANGUAGE zh_CN
-#define LCD_LANGUAGE_2 en
- #else
+
 #define LCD_LANGUAGE en
-//#define LCD_LANGUAGE_2 es
-//#define LCD_LANGUAGE_3 de
-//#define LCD_LANGUAGE_4 pl
-//#define LCD_LANGUAGE_5 it
-// #define LCD_LANGUAGE_6 fr
-// #define LCD_LANGUAGE_7 pt
-// #define LCD_LANGUAGE_8 ru
-// #define LCD_LANGUAGE_9 ko_KR
-#endif
+
 /**
  * LCD Character Set
  *
@@ -2371,7 +2366,9 @@
 // (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
 //
 #define CR10_STOCKDISPLAY
-#define RET6_12864_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+	#define RET6_12864_LCD
+#endif
 
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.

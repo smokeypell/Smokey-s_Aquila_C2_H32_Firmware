@@ -107,6 +107,7 @@ struct duration_t {
   }
 
   #if GCC_VERSION <= 50000
+    // Commented out for Aquila
     //#pragma GCC diagnostic push
     //#pragma GCC diagnostic ignored "-Wformat-overflow"
   #endif
@@ -115,8 +116,7 @@ struct duration_t {
    * @brief Formats the duration as a string
    * @details String will be formated using a "full" representation of duration
    *
-   * @param buffer The array pointed to must be able to accommodate 22 bytes
-   *               (21 for the string, 1 more for the terminating nul)
+   * @param buffer The array pointed to must be able to accommodate 21 bytes
    *
    * Output examples:
    *  123456789012345678901 (strlen)
@@ -171,6 +171,7 @@ struct duration_t {
   }
 
   #if GCC_VERSION <= 50000
+    // Commented out for Aquila
     //#pragma GCC diagnostic pop
   #endif
 };

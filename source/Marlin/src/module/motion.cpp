@@ -167,16 +167,25 @@ xyz_pos_t cartes;
  */
 #if HAS_POSITION_SHIFT
   // The distance that XYZ has been offset by G92. Reset by G28.
-  xyz_pos_t position_shift={0};
+  
+  //xyz_pos_t position_shift{0}; // Marlin 2.0.8
+  xyz_pos_t position_shift={0}; // Aquila
+  
 #endif
 #if HAS_HOME_OFFSET
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
-  xyz_pos_t home_offset={0};
+  
+  //xyz_pos_t home_offset{0}; // Marlin 2.0.8
+  xyz_pos_t home_offset={0}; // Aquila
+  
 #endif
 #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
   // The above two are combined to save on computes
-  xyz_pos_t workspace_offset={0};
+  
+  //xyz_pos_t workspace_offset{0}; // Marlin 2.0.8
+  xyz_pos_t workspace_offset={0}; // Aquila
+  
 #endif
 
 #if HAS_ABL_NOT_UBL
@@ -194,7 +203,10 @@ inline void report_more_positions() {
 
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
-  const xyze_pos_t lpos = rpos;
+  
+  //const xyze_pos_t lpos = rpos.asLogical(); // Marlin 2.0.8
+  const xyze_pos_t lpos = rpos; // Aquila
+  
   SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
 }
 
@@ -202,8 +214,11 @@ inline void report_logical_position(const xyze_pos_t &rpos) {
 // Forward kinematics and un-leveling are applied.
 void report_real_position() {
   get_cartesian_from_steppers();
-  xyze_pos_t npos = {0};
-  npos = cartes;
+  
+  //xyze_pos_t npos = cartes; // Marlin 2.0.8
+  xyze_pos_t npos = {0}; // Aquila
+  npos = cartes; // Aquila
+  
   npos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
@@ -246,7 +261,10 @@ void report_current_position_projected() {
   void report_current_position_moving() {
 
     get_cartesian_from_steppers();
-    const xyz_pos_t lpos = cartes;
+    
+    //const xyz_pos_t lpos = cartes.asLogical(); // Marlin 2.0.8
+    const xyz_pos_t lpos = cartes; // Aquila
+    
     SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
 
     stepper.report_positions();
@@ -353,8 +371,11 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  xyze_pos_t pos = {0};
-  pos = cartes;
+  
+  //xyze_pos_t pos = cartes; // Marlin 2.0.8
+  xyze_pos_t pos = {0}; // Aquila
+  pos = cartes; // Aquila
+  
   pos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
@@ -428,7 +449,10 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   #endif
 
   if (TERN0(IS_KINEMATIC, is_fast))
-    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP);
+    
+    //TERN(IS_KINEMATIC, NOOP, prepare_line_to_destination()); // Marlin 2.0.8
+    TERN(IS_KINEMATIC, prepare_fast_move_to_destination(), NOOP); // Aquila
+    
   else
     prepare_line_to_destination();
 

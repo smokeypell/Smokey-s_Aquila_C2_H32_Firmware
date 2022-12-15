@@ -21,7 +21,7 @@
  */
 
 /**
- * CREALITY v4.2.7 (STM32F103) board pin assignments
+ * Voxelab V1.1.0 H32 (HC32F460PETB) board pin assignments - This board is commonly found in the Aquila C2 with H32 chip
  */
 
 #ifndef HC32F46x
@@ -33,11 +33,11 @@
 #endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Voxlab V4 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Aquila C2 H32 board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME      "Voxlab V1.1.0"
-#define DEFAULT_MACHINE_NAME "Voxlab3D"
+#define BOARD_INFO_NAME      "Voxlab V1.1.0 H32"
+#define DEFAULT_MACHINE_NAME "Voxelab H32"
 
 
 

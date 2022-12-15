@@ -39,7 +39,7 @@
 #include "HAL/shared/cpu_exception/exception_hook.h"
 
 #ifdef ARDUINO
-  //#include <pins_arduino.h>
+  //#include <pins_arduino.h>  //Commented out in Aquila
 #endif
 #include <math.h>
 
@@ -279,6 +279,7 @@ bool wait_for_heatup = true;
 
 #include "pins/sensitive_pins.h"
 
+// Commented out in Aquila
 //#pragma GCC diagnostic push
 //#pragma GCC diagnostic ignored "-Wnarrowing"
 
@@ -292,6 +293,7 @@ bool pin_is_protected(const pin_t pin) {
   return false;
 }
 
+// Commented out in Aquila
 //#pragma GCC diagnostic pop
 
 void enable_e_steppers() {
@@ -384,7 +386,7 @@ void startOrResumeJob() {
 
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
-      queue.enqueue_one_now(PSTR("M84"));
+	  queue.enqueue_one_now(PSTR("M84")); // Aquila
     #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
@@ -722,8 +724,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
-
-  HAL_watchdog_refresh();
+  
+  HAL_watchdog_refresh(); // Aquila
 
   // Core Marlin activities
   manage_inactivity(TERN_(ADVANCED_PAUSE_FEATURE, no_stepper_sleep));
@@ -830,16 +832,18 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
-
+  
   #if HAS_DISPLAY
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
-    UNUSED(lcd_error); UNUSED(lcd_component);
+    UNUSED(lcd_error);
+    UNUSED(lcd_component);
   #endif
-
-  TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
-
-  // "Error:Printer halted. kill() called!"
+  
+  #if HAS_TFT_LVGL_UI
+    lv_draw_error_message(lcd_error);
+  #endif
+  
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #ifdef ACTION_ON_KILL
@@ -850,20 +854,20 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
 }
 
 void minkill(const bool steppers_off/*=false*/) {
-    uint32_t cnt=0;
+	uint32_t cnt=0; // Aquila
 
   // Wait a short time (allows messages to get out before shutting down.
   for (int i = 1000; i--;){
-      watchdog_refresh();
-      DELAY_US(600);
+	  watchdog_refresh(); // Aquila
+	  DELAY_US(600);
   }
 
   cli(); // Stop interrupts
 
   // Wait to ensure all interrupts stopped
   for (int i = 1000; i--;){
-      watchdog_refresh();
-      DELAY_US(250);
+	  watchdog_refresh(); // Aquila
+	  DELAY_US(250);
   }
 
   // Reiterate heaters off
@@ -892,8 +896,10 @@ void minkill(const bool steppers_off/*=false*/) {
     HAL_reboot();
 
   #else
-    while(1) // Wait for reset
-   {
+
+    //for (;;) watchdog_refresh();  // Wait for RESET button or power-cycle // Marlin 2.0.8
+	// Added in Aquila
+	while(1){ // Wait for reset 
         if(++cnt>500){
             //NVIC_SystemReset();
         }
@@ -901,7 +907,7 @@ void minkill(const bool steppers_off/*=false*/) {
             Ddl_Delay1ms(10);
         }
         HAL_watchdog_refresh();
-    } 
+    }
   #endif
 }
 
@@ -990,27 +996,27 @@ inline void tmc_standby_setup() {
  *  - Install Marlin custom Exception Handlers, if set.
  *  - Init Marlin's HAL interfaces (for SPI, i2c, etc.)
  *  - Init some optional hardware and features:
- *    â€?MAX Thermocouple pins
- *    â€?Duet Smart Effector
- *    â€?Filament Runout Sensor
- *    â€?TMC220x Stepper Drivers (Serial)
- *    â€?PSU control
- *    â€?Power-loss Recovery
- *    â€?L64XX Stepper Drivers (SPI)
- *    â€?Stepper Driver Reset: DISABLE
- *    â€?TMC Stepper Drivers (SPI)
- *    â€?Run BOARD_INIT if defined
- *    â€?ESP WiFi
+ *    â€¢ MAX Thermocouple pins
+ *    â€¢ Duet Smart Effector
+ *    â€¢ Filament Runout Sensor
+ *    â€¢ TMC220x Stepper Drivers (Serial)
+ *    â€¢ PSU control
+ *    â€¢ Power-loss Recovery
+ *    â€¢ L64XX Stepper Drivers (SPI)
+ *    â€¢ Stepper Driver Reset: DISABLE
+ *    â€¢ TMC Stepper Drivers (SPI)
+ *    â€¢ Run BOARD_INIT if defined
+ *    â€¢ ESP WiFi
  *  - Get the Reset Reason and report it
  *  - Print startup messages and diagnostics
  *  - Calibrate the HAL DELAY for precise timing
  *  - Init the buzzer, possibly a custom timer
  *  - Init more optional hardware:
- *    â€?Color LED illumination
- *    â€?Neopixel illumination
- *    â€?Controller Fan
- *    â€?Creality DWIN LCD (show boot image)
- *    â€?Tare the Probe if possible
+ *    â€¢ Color LED illumination
+ *    â€¢ Neopixel illumination
+ *    â€¢ Controller Fan
+ *    â€¢ Creality DWIN LCD (show boot image)
+ *    â€¢ Tare the Probe if possible
  *  - Mount the (most likely external) SD Card
  *  - Load settings from EEPROM (or use defaults)
  *  - Init the Ethernet Port
@@ -1018,39 +1024,39 @@ inline void tmc_standby_setup() {
  *  - Adjust the (certainly wrong) current position by the home offset
  *  - Init the Planner::position (steps) based on current (native) position
  *  - Initialize more managers and peripherals:
- *    â€?Temperatures
- *    â€?Print Job Timer
- *    â€?Endstops and Endstop Interrupts
- *    â€?Stepper ISR - Kind of Important!
- *    â€?Servos
- *    â€?Servo-based Probe
- *    â€?Photograph Pin
- *    â€?Laser/Spindle tool Power / PWM
- *    â€?Coolant Control
- *    â€?Bed Probe
- *    â€?Stepper Driver Reset: ENABLE
- *    â€?Digipot I2C - Stepper driver current control
- *    â€?Stepper DAC - Stepper driver current control
- *    â€?Solenoid (probe, or for other use)
- *    â€?Home Pin
- *    â€?Custom User Buttons
- *    â€?Red/Blue Status LEDs
- *    â€?Case Light
- *    â€?Prusa MMU filament changer
- *    â€?Fan Multiplexer
- *    â€?Mixing Extruder
- *    â€?BLTouch Probe
- *    â€?I2C Position Encoders
- *    â€?Custom I2C Bus handlers
- *    â€?Enhanced tools or extruders:
- *      â€?Switching Extruder
- *      â€?Switching Nozzle
- *      â€?Parking Extruder
- *      â€?Magnetic Parking Extruder
- *      â€?Switching Toolhead
- *      â€?Electromagnetic Switching Toolhead
- *    â€?Watchdog Timer - Also Kind of Important!
- *    â€?Closed Loop Controller
+ *    â€¢ Temperatures
+ *    â€¢ Print Job Timer
+ *    â€¢ Endstops and Endstop Interrupts
+ *    â€¢ Stepper ISR - Kind of Important!
+ *    â€¢ Servos
+ *    â€¢ Servo-based Probe
+ *    â€¢ Photograph Pin
+ *    â€¢ Laser/Spindle tool Power / PWM
+ *    â€¢ Coolant Control
+ *    â€¢ Bed Probe
+ *    â€¢ Stepper Driver Reset: ENABLE
+ *    â€¢ Digipot I2C - Stepper driver current control
+ *    â€¢ Stepper DAC - Stepper driver current control
+ *    â€¢ Solenoid (probe, or for other use)
+ *    â€¢ Home Pin
+ *    â€¢ Custom User Buttons
+ *    â€¢ Red/Blue Status LEDs
+ *    â€¢ Case Light
+ *    â€¢ Prusa MMU filament changer
+ *    â€¢ Fan Multiplexer
+ *    â€¢ Mixing Extruder
+ *    â€¢ BLTouch Probe
+ *    â€¢ I2C Position Encoders
+ *    â€¢ Custom I2C Bus handlers
+ *    â€¢ Enhanced tools or extruders:
+ *      â€¢ Switching Extruder
+ *      â€¢ Switching Nozzle
+ *      â€¢ Parking Extruder
+ *      â€¢ Magnetic Parking Extruder
+ *      â€¢ Switching Toolhead
+ *      â€¢ Electromagnetic Switching Toolhead
+ *    â€¢ Watchdog Timer - Also Kind of Important!
+ *    â€¢ Closed Loop Controller
  *  - Run Startup Commands, if defined
  *  - Tell host to close Host Prompts
  *  - Test Trinamic driver connections
@@ -1093,7 +1099,7 @@ void setup() {
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
-	SERIAL_ECHOLNPGM("\n==============MARLIN==============");
+  SERIAL_ECHOLNPGM("\n==============MARLIN=============="); // Aquila
   SERIAL_ECHOLNPGM("start");
 
   // Set up these pins early to prevent suicide
@@ -1111,7 +1117,8 @@ void setup() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
-  #if 0//EITHER(DISABLE_DEBUG, DISABLE_JTAG)
+  //#if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
+  #if 0//EITHER(DISABLE_DEBUG, DISABLE_JTAG) // Aquila
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
       JTAGSWD_DISABLE();
@@ -1182,9 +1189,9 @@ void setup() {
     SETUP_LOG("BOARD_INIT");
     BOARD_INIT();
   #endif
-
-  #if HAS_ESP_WIFI
-    SETUP_RUN(esp_wifi_init());
+  
+  #if HAS_ESP_WIFI // Wrapped in #if in Aquila
+	SETUP_RUN(esp_wifi_init());
   #endif
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
@@ -1206,8 +1213,9 @@ void setup() {
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-	SERIAL_ECHO_MSG("Compiled Date: " __DATE__ "-" __TIME__);
-  printf("Compiled Date: %s-%s\n",__DATE__,__TIME__);    
+  //SERIAL_ECHO_MSG("Compiled: " __DATE__);
+  SERIAL_ECHO_MSG("Compiled Date: " __DATE__ "-" __TIME__); // Aquila
+  printf("Compiled Date: %s-%s\n",__DATE__,__TIME__); // Aquila
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1543,7 +1551,8 @@ void setup() {
     SETUP_RUN(tft_lvgl_init());
   #endif
 
-  #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN,SHOW_MARLIN_BOOTSCREEN)
+  //#if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+  #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN,SHOW_MARLIN_BOOTSCREEN) // Aquila
     const millis_t elapsed = millis() - bootscreen_ms;
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPAIR("elapsed=", elapsed);
@@ -1562,7 +1571,7 @@ void setup() {
   marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");
-	SERIAL_ECHOLNPGM("=============SETUP FINISH=============\n");
+  SERIAL_ECHOLNPGM("=============SETUP FINISH=============\n"); // Aquila
 }
 
 /**

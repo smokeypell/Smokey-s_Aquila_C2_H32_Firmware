@@ -2215,11 +2215,15 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Software Reset options
+ * Software Reset on Kill option
  */
+
+// Aquila
 #if ENABLED(SOFT_RESET_VIA_SERIAL) && DISABLED(EMERGENCY_PARSER)
   #error "EMERGENCY_PARSER is required to activate SOFT_RESET_VIA_SERIAL."
-#endif
+#endif																
+// End Aquila
+
 #if ENABLED(SOFT_RESET_ON_KILL) && !BUTTON_EXISTS(ENC)
   #error "An encoder button is required or SOFT_RESET_ON_KILL will reset the printer without notice!"
 #endif

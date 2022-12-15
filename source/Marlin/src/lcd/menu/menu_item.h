@@ -26,9 +26,10 @@
 #include "../../gcode/queue.h" // for inject_P
 
 #include "../../inc/MarlinConfigPre.h"
-#if HAS_MARLINUI_U8GLIB
-#define INT32_MIN          (~0x7fffffff)   /* -2147483648 is unsigned */
-#define INT32_MAX            2147483647
+
+#if HAS_MARLINUI_U8GLIB  // Aquila
+#define INT32_MIN          (~0x7fffffff)   /* -2147483648 is unsigned */ // Aquila
+#define INT32_MAX            2147483647 // Aquila
 
 void lcd_move_z();
 
@@ -458,7 +459,9 @@ class MenuItem_bool : public MenuEditItemBase {
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
 #endif
-#endif
+
+#endif // Aquila
+
 #if HAS_FAN
 
   #include "../../module/temperature.h"

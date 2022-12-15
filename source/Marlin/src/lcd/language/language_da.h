@@ -186,7 +186,8 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
 
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("Vent på", "filament udskyd."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Indsæt filament", "og tryk på knap", "for at fortsætte..."));

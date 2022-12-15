@@ -111,14 +111,19 @@
 // Feedspeed limit (max feedspeed = DEFAULT_MAX_FEEDRATE * 2)
 #define MIN_MAXFEEDSPEED      1
 #define MIN_MAXACCELERATION   1
-#define MIN_MAXJERK           0.1f
+
+//#define MIN_MAXJERK           0.1 // MArlin 2.0.8
+#define MIN_MAXJERK           0.1f // Aquila
+
 #define MIN_STEP              1
 
 #define FEEDRATE_E      (60)
 
 // Minimum unit (0.1) : multiple (10)
 #define UNITFDIGITS 1
-#define MINUNITMULT POW(10, UNITFDIGITS)
+
+//#define MINUNITMULT pow(10, UNITFDIGITS) // Marlin 2.0.8
+#define MINUNITMULT POW(10, UNITFDIGITS) // Aquila
 
 #define ENCODER_WAIT_MS                  20
 #define DWIN_VAR_UPDATE_INTERVAL         1024
@@ -126,7 +131,7 @@
 #define DWIN_REMAIN_TIME_UPDATE_INTERVAL SEC_TO_MS(20)
 
 constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,        // Total rows, and other-than-Back
-                   /*TITLE_HEIGHT = 30, */                  // Title bar height
+                   //TITLE_HEIGHT = 30,                   // Title bar height // Marlin 2.0.8
                    MLINE = 53,                          // Menu line height
                    LBLX = 60,                           // Menu item label X
                    MENU_CHR_W = 8, STAT_CHR_W = 10;
@@ -494,8 +499,8 @@ void Draw_Back_First(const bool is_sel=true) {
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
-
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, float valref) {
+//inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valref) { // Marlin 2.0.8
+inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, float valref) { // Aquila
   if (encoder_diffState == ENCODER_DIFF_CW)
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
@@ -1568,7 +1573,10 @@ void HMI_StepXYZE() {
     }
     // Step limit
     if (WITHIN(HMI_flag.step_axis, X_AXIS, LAST_AXIS))
-      NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9f * MINUNITMULT);
+      
+      //NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9 * MINUNITMULT); // Marlin 2.0.8
+      NOMORE(HMI_ValueStruct.Max_Step_scaled, 999.9f * MINUNITMULT); // Aquila
+      
     NOLESS(HMI_ValueStruct.Max_Step_scaled, MIN_STEP);
     // Step value
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, UNITFDIGITS, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step_scaled);
@@ -2299,6 +2307,13 @@ void HMI_PauseOrStop() {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
         ICON_Continue();
+        
+        /* // Marlin 2.0.8
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          if (recovery.enabled) recovery.save(true);
+        #endif
+        */
+        
         queue.inject_P(PSTR("M25"));
       }
       else {
@@ -4023,7 +4038,8 @@ void EachMomentUpdate() {
           DWIN_UpdateLCD();
         }
         
-        HAL_watchdog_refresh();
+        HAL_watchdog_refresh(); // Aquila
+        
       }
 
       select_print.set(0);
@@ -4035,7 +4051,7 @@ void EachMomentUpdate() {
   #endif
 
   DWIN_UpdateLCD();
-  HAL_watchdog_refresh();
+  HAL_watchdog_refresh(); // Aquila
 }
 
 void DWIN_HandleScreen() {

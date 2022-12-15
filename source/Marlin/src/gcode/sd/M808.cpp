@@ -19,18 +19,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(GCODE_REPEAT_MARKERS)
+
+#include "../gcode.h"
+#include "../../feature/repeat.h"
 
 /**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
+ * M808: Set / Goto a repeat marker
+ *
+ *  L<count> - Set a repeat marker with 'count' repetitions. If omitted, infinity.
+ *
+ * Examples:
+ *
+ *    M808 L   ; Set a loop marker with a count of infinity
+ *    M808 L2  ; Set a loop marker with a count of 2
+ *    M808     ; Decrement and loop if not zero.
  */
+void GcodeSuite::M808() {
 
-#include "../cores/iwdg.h" // Aquila
-//#include <libmaple/iwdg.h> // Marlin 2.0.8
+  // Handled early and ignored here in the queue.
+  // Allowed to go into the queue for logging purposes.
 
-// Initialize watchdog with a 4 or 8 second countdown time
-void watchdog_init();
+  // M808 K sent from the host to cancel all loops
+  if (parser.seen('K')) repeat.cancel();
 
-// Reset watchdog. MUST be called every 4 or 8 seconds after the
-// first watchdog_init or the STM32F1 will reset.
-void HAL_watchdog_refresh();
+}
+
+#endif // GCODE_REPEAT_MARKERS

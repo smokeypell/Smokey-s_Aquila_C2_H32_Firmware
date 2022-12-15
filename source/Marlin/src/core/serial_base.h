@@ -140,10 +140,18 @@ struct SerialBase {
   FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
   FORCE_INLINE void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
+  //NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
+  //NO_INLINE void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }
+  //NO_INLINE void print(int c, PrintBase base)                 { printNumber((signed long)c, (uint8_t)base); }
+  //NO_INLINE void print(unsigned int c, PrintBase base)        { printNumber((unsigned long)c, (uint8_t)base); }
+  
+  // Aquila
   void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
   void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }
   void print(int c, PrintBase base)                 { printNumber((signed long)c, (uint8_t)base); }
   void print(unsigned int c, PrintBase base)        { printNumber((unsigned long)c, (uint8_t)base); }
+  // End Aquila
+  
   void print(unsigned long c, PrintBase base)                 { printNumber((unsigned long)c, (uint8_t)base); }
   void print(long c, PrintBase base)                          { printNumber((signed long)c, (uint8_t)base); }
   void print(EnsureDouble c, int digits)                      { printFloat(c, digits); }
@@ -177,7 +185,8 @@ struct SerialBase {
   FORCE_INLINE void println(double c)              { println(c, 2); }
 
   // Print a number with the given base
-  void printNumber(unsigned long n, const uint8_t base) {
+  //NO_INLINE void printNumber(unsigned long n, const uint8_t base) {
+  void printNumber(unsigned long n, const uint8_t base) { // Aquila
     if (!base) return; // Hopefully, this should raise visible bug immediately
 
     if (n) {
@@ -203,7 +212,8 @@ struct SerialBase {
   }
 
   // Print a decimal number
-  void printFloat(double number, uint8_t digits) {
+  //NO_INLINE void printFloat(double number, uint8_t digits) {
+  void printFloat(double number, uint8_t digits) { // Aquila
     // Handle negative numbers
     if (number < 0.0) {
       write('-');

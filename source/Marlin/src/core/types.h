@@ -24,7 +24,7 @@
 #include <math.h>
 #include <stddef.h>
 
-#include "millis_t.h"
+#include "millis_t.h" // Aquila				 
 #include "../inc/MarlinConfigPre.h"
 
 class __FlashStringHelper;
@@ -222,7 +222,29 @@ struct XYval {
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
   FI XYval<float>  asLogical()                    const { XYval<float> o = asFloat(); toLogical(o); return o; }
   FI XYval<float>   asNative()                    const { XYval<float> o = asFloat(); toNative(o);  return o; }
-  FI operator XYZval<T>()                               { return {{ {x, y} }}; }
+  
+	 /* ****************************************************************************************************************** 
+		*
+	  * Original funtion - Keil MDK will not compile this funcion this way
+	  *
+		* error:  #3629: braces cannot be omitted for this subobject initializer
+    *           FI operator XYZval<T>() { return { x, y }; }
+		*
+		* https://stackoverflow.com/questions/16985687/brace-elision-in-stdarray-initialization
+		* https://stackoverflow.com/questions/11734861/when-can-outer-braces-be-omitted-in-an-initializer-list
+		*
+		*/
+  //FI operator XYZval<T>() { return { x, y }; }
+	
+	// Modified Function
+	FI operator XYZval<T>() { 
+		return 
+			{{
+				{ x, y }
+			}}; 
+	}
+	/* ******************************************************************************************************************** */
+	
   FI operator XYZval<T>()                         const { return { x, y }; }
   FI operator XYZEval<T>()                              { return { x, y }; }
   FI operator XYZEval<T>()                        const { return { x, y }; }
@@ -329,7 +351,31 @@ struct XYZval {
   FI XYZval<int32_t>  ROUNDL()                         { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
   FI XYZval<int32_t>  ROUNDL()                   const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)) }; }
   FI XYZval<float>   asFloat()                         { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
-  FI XYZval<float>   asFloat()                   const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
+	
+	/** -----------------------------------------------------------------------------------------------------------------------------------------
+		*
+	  * Original funtion - Keil MDK will not compile this funcion this way
+	  *
+		* error:  #3629: braces cannot be omitted for this subobject initializer
+    *           FI XYZval<float> asFloat() const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
+		*
+		* https://stackoverflow.com/questions/16985687/brace-elision-in-stdarray-initialization
+		* https://stackoverflow.com/questions/11734861/when-can-outer-braces-be-omitted-in-an-initializer-list
+		*
+		**/
+	/*
+  FI XYZval<float> asFloat() const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }; }
+	*/
+	
+	// Modified Function
+	FI XYZval<float> asFloat() const { 
+		return 
+			{{
+				{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) }
+			}}; 
+	}
+	/* --------------------------------------------------------------------------------------------------------------------------------------------- */
+	
   FI XYZval<float> reciprocal()                  const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z) }; }
   FI XYZval<float> asLogical()                   const { XYZval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZval<float>  asNative()                   const { XYZval<float> o = asFloat(); toNative(o);  return o; }
@@ -440,7 +486,15 @@ struct XYZEval {
   FI XYZEval<int32_t>  ROUNDL()                               { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
   FI XYZEval<int32_t>  ROUNDL()                         const { return { int32_t(LROUND(x)), int32_t(LROUND(y)), int32_t(LROUND(z)), int32_t(LROUND(e)) }; }
   FI XYZEval<float>   asFloat()                               { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }; }
-  FI XYZEval<float>   asFloat()                         const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }; }
+  
+	// Original
+	//FI XYZEval<float>   asFloat()                         const { return { static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }; }
+	FI XYZEval<float> asFloat() const { 
+		return {{
+			{ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), static_cast<float>(e) }
+		}}; 
+	} // Reference error:  #3629 in Notes
+	
   FI XYZEval<float> reciprocal()                        const { return {  _RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(e) }; }
   FI XYZEval<float> asLogical()                         const { XYZEval<float> o = asFloat(); toLogical(o); return o; }
   FI XYZEval<float>  asNative()                         const { XYZEval<float> o = asFloat(); toNative(o);  return o; }
@@ -518,5 +572,6 @@ struct XYZEval {
 #undef _RS
 #undef FI
 
-const xyze_char_t axis_codes ={ 'X', 'Y', 'Z', 'E' };
+//const xyze_char_t axis_codes { 'X', 'Y', 'Z', 'E' };
+const xyze_char_t axis_codes ={ 'X', 'Y', 'Z', 'E' }; // Aquila
 #define XYZ_CHAR(A) ((char)('X' + A))

@@ -501,7 +501,8 @@ namespace Language_pl {
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
   //
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Nacisnik przycisk", "by wznowić drukowanie"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkowanie..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Czekam na", "zmianę filamentu", "by wystartować"));

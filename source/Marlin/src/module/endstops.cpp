@@ -410,7 +410,8 @@ static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   SERIAL_ECHOLNPGM_P(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
 }
 
-void Endstops::report_states() {
+//void _O2 Endstops::report_states() { // Marlin 2.0.8
+void _O2 Endstops::report_states() { // Aquila
   TERN_(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(STR_##S))

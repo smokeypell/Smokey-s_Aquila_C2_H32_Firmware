@@ -79,7 +79,8 @@
 
 #include "stepper.h"
 
-hal_timer_t start_pulse_count = 0;
+hal_timer_t start_pulse_count = 0; // Aquila
+
 Stepper stepper; // Singleton
 
 #define BABYSTEPPING_EXTRA_DIR_WAIT
@@ -182,9 +183,11 @@ uint8_t Stepper::steps_per_isr;
 
 IF_DISABLED(ADAPTIVE_STEP_SMOOTHING, constexpr) uint8_t Stepper::oversampling_factor;
 
-xyze_long_t Stepper::delta_error={0};
+//xyze_long_t Stepper::delta_error{0}; // Marlin 2.0.8
+xyze_long_t Stepper::delta_error={0}; // Aquila
 
-xyze_ulong_t Stepper::advance_dividend={0};
+//xyze_ulong_t Stepper::advance_dividend{0}; // Marlin 2.0.8
+xyze_ulong_t Stepper::advance_dividend={0}; // Aquila
 uint32_t Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
          Stepper::accelerate_until,          // The count at which to stop accelerating
@@ -237,8 +240,12 @@ int32_t Stepper::ticks_nominal = -1;
 #endif
 
 xyz_long_t Stepper::endstops_trigsteps;
-xyze_long_t Stepper::count_position={0};
-xyze_int8_t Stepper::count_direction ={0};
+
+//xyze_long_t Stepper::count_position{0}; // Marlin 2.0.8
+//xyze_int8_t Stepper::count_direction{0}; // Marlin 2.0.8
+
+xyze_long_t Stepper::count_position={0}; // Aquila
+xyze_int8_t Stepper::count_direction ={0}; // Aquila
 
 #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
   Stepper::stepper_laser_t Stepper::laser_trap = {
@@ -432,38 +439,50 @@ xyze_int8_t Stepper::count_direction ={0};
 #define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
-#define USING_TIMED_PULSE() start_pulse_count = 0
+//#define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0 // Marlin 2.0.8
+#define USING_TIMED_PULSE() start_pulse_count = 0 // Aquila
+
 #define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(PULSE_TIMER_NUM))
-#if 0
+/* Marlin 2.0.8
 #define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
+#define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
 #define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
+#define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
 #define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE(LOW)
+*/ //End Marlin
+
+// Aquila
+#if 0
+  #define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
+  #define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
+  #define AWAIT_LOW_PULSE()   AWAIT_TIMED_PULSE(LOW)
 #else
-void Stepper::AWAIT_TIMED_PULSE(uint8_t DIR){
+  void Stepper::AWAIT_TIMED_PULSE(uint8_t DIR){
     uint8_t cnt=0;
     hal_timer_t CONT=0;
     
     if(DIR==HIGH){
-        CONT = PULSE_HIGH_TICK_COUNT;
+      CONT = PULSE_HIGH_TICK_COUNT;
     }
     else if(DIR==LOW){
-        CONT = PULSE_LOW_TICK_COUNT;
+      CONT = PULSE_LOW_TICK_COUNT;
     }
     do{
-        if(CONT < (HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count))break;
-        if(++cnt>=10)
-        {
-            cnt = 0;
-            return;
-        }
-        HAL_watchdog_refresh();
+      if(CONT < (HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count))break;
+      if(++cnt>=10)
+      {
+        cnt = 0;
+        return;
+      }
+      HAL_watchdog_refresh();
     }while(1);
-}
+  }
 void Stepper::AWAIT_HIGH_PULSE(void)  {AWAIT_TIMED_PULSE(HIGH);}
 void Stepper::AWAIT_LOW_PULSE(void)   {AWAIT_TIMED_PULSE(LOW);}
 #endif
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
+// End Aquila
 
 #if MINIMUM_STEPPER_PRE_DIR_DELAY > 0
   #define DIR_WAIT_BEFORE() DELAY_NS(MINIMUM_STEPPER_PRE_DIR_DELAY)
@@ -1294,7 +1313,9 @@ void Stepper::set_directions() {
     }
 
     FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
-      #if 0//defined(__arm__) || defined(__thumb__)
+      
+      //#if defined(__arm__) || defined(__thumb__) // Marlin 2.0.8
+      #if 0//defined(__arm__) || defined(__thumb__) // Aquila
 
         // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
         uint32_t flo = 0;
@@ -1367,7 +1388,8 @@ void Stepper::set_directions() {
  * Directly pulses the stepper motors at high frequency.
  */
 
-void HAL_STEP_TIMER_ISR(void) {
+//HAL_STEP_TIMER_ISR() { // Marlin 2.0.8
+void HAL_STEP_TIMER_ISR(void) { // Aquila
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
 
   Stepper::isr();
@@ -1569,7 +1591,8 @@ void Stepper::pulse_phase_isr() {
     bool firstStep = true;
     USING_TIMED_PULSE();
   #endif
-  xyze_bool_t step_needed={0};
+  //xyze_bool_t step_needed{0}; // Marlin 2.0.8
+  xyze_bool_t step_needed={0}; // Aquila
 
   do {
     #define _APPLY_STEP(AXIS, INV, ALWAYS) AXIS ##_APPLY_STEP(INV, ALWAYS)

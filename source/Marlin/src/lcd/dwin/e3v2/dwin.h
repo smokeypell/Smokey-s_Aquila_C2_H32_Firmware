@@ -30,8 +30,8 @@
 #include "../../../libs/BL24CXX.h"
 
 #include "../../../inc/MarlinConfigPre.h"
-#if ENABLED(DWIN_CREALITY_LCD)
 
+#if ENABLED(DWIN_CREALITY_LCD) // Aquila
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
   #define HAS_PREHEAT 1
@@ -412,4 +412,5 @@ inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();
-#endif
+
+#endif //Aquila

@@ -538,7 +538,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Maze");
 
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Pulsar el botón para", "reanudar impresión"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Aparcando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Esperando para", "iniciar el cambio", "de filamento"));

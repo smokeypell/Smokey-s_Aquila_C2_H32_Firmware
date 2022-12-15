@@ -55,12 +55,14 @@
       bool evac_state = cutter.air_evac_state();
       EDIT_ITEM(bool, MSG_CUTTER(EVAC_TOGGLE), &evac_state, cutter.air_evac_toggle);
     #endif
-
+    
+    // Aquila
     #if ENABLED(AIR_ASSIST)
       bool air_assist_state = cutter.air_assist_state();
       EDIT_ITEM(bool, MSG_CUTTER(ASSIST_TOGGLE), &air_assist_state, cutter.air_assist_toggle);
     #endif
-
+    // End Aquila
+    
     #if ENABLED(SPINDLE_CHANGE_DIR)
       if (!is_enabled) {
         editable.state = is_rev;

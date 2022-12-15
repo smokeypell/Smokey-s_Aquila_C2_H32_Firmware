@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -34,6 +34,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("简体中文");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就绪.");     //" ready."
+  
+  // Commented out in Aquila
   //PROGMEM Language_Str MSG_MARLIN                          = _UxGT("马林");
   PROGMEM Language_Str MSG_YES                             = _UxGT("是");
   PROGMEM Language_Str MSG_NO                              = _UxGT("否");
@@ -391,9 +393,11 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("卸载丝料 *");     // "Unload filament"
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("卸载全部");     // "Unload All"
   
-    PROGMEM Language_Str MSG_STOP_LOAD                    = _UxGT("取消装载丝料");     // "Load filament"
-     PROGMEM Language_Str MSG_STOP_UNLOAD                    = _UxGT("取消卸载丝料");     // "unLoad filament" 
-     
+  // Aquila
+  PROGMEM Language_Str MSG_STOP_LOAD                    = _UxGT("取消装载丝料");     // "Load filament"
+  PROGMEM Language_Str MSG_STOP_UNLOAD                    = _UxGT("取消卸载丝料");     // "unLoad filament"
+  // End Aquila
+  
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("初始化存储卡");     //"Init. SD card"
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("更换存储卡");     //"Change SD card"
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("释放存储卡");
@@ -480,7 +484,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("灯亮度");     // "Light BRIGHTNESS"
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("打印机不正确");     // "The printer is incorrect"
-  PROGMEM Language_Str MSG_KILL_READCARD_FAILED              = _UxGT("读卡错误");
+  
+  PROGMEM Language_Str MSG_KILL_READCARD_FAILED              = _UxGT("读卡错误"); // Aquila
 
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("打印计数");     //"Print Count"
@@ -572,7 +577,8 @@ namespace Language_zh_CN {
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
   //
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("按下按钮", "恢复打印"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("停靠中..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("等待开始", "丝料", "变更"));     // "Wait for start of the filament change"

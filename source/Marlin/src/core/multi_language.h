@@ -24,17 +24,18 @@
 
 typedef const char Language_Str[];
 
-#ifdef LCD_LANGUAGE_10
-  #define NUM_LANGUAGES 10
-#elif defined(LCD_LANGUAGE_9)
-  #define NUM_LANGUAGES 9
-#elif defined(LCD_LANGUAGE_8)
-  #define NUM_LANGUAGES 8
-#elif defined(LCD_LANGUAGE_7)
-  #define NUM_LANGUAGES 7
-#elif defined(LCD_LANGUAGE_6)
-  #define NUM_LANGUAGES 6
-#elif defined(LCD_LANGUAGE_5)
+//#ifdef LCD_LANGUAGE_5
+#ifdef LCD_LANGUAGE_10 // Aquila
+  #define NUM_LANGUAGES 10 // Aquila
+#elif defined(LCD_LANGUAGE_9) // Aquila
+  #define NUM_LANGUAGES 9 // Aquila
+#elif defined(LCD_LANGUAGE_8) // Aquila
+  #define NUM_LANGUAGES 8 // Aquila
+#elif defined(LCD_LANGUAGE_7) // Aquila
+  #define NUM_LANGUAGES 7 // Aquila
+#elif defined(LCD_LANGUAGE_6) // Aquila
+  #define NUM_LANGUAGES 6 // Aquila
+#elif defined(LCD_LANGUAGE_5) // Aquila
   #define NUM_LANGUAGES 5
 #elif defined(LCD_LANGUAGE_4)
   #define NUM_LANGUAGES 4
@@ -65,8 +66,9 @@ typedef const char Language_Str[];
   #define LCD_LANGUAGE_5 LCD_LANGUAGE_4
 #endif
 
-#ifndef LCD_LANGUAGE_6
-  #define LCD_LANGUAGE_6 LCD_LANGUAGE_5
+// Aquila
+#ifndef LCD_LANGUAGE_6  
+  #define LCD_LANGUAGE_6 LCD_LANGUAGE_5  
 #endif
 
 #ifndef LCD_LANGUAGE_7
@@ -84,7 +86,7 @@ typedef const char Language_Str[];
 #ifndef LCD_LANGUAGE_10
   #define LCD_LANGUAGE_10 LCD_LANGUAGE_9
 #endif
-
+// End Aquila
 #define _GET_LANG(LANG) Language_##LANG
 #define GET_LANG(LANG) _GET_LANG(LANG)
 
@@ -95,22 +97,28 @@ typedef const char Language_Str[];
     ui.language == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
     ui.language == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
     ui.language == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
-    ui.language == 4 ? GET_LANG(LCD_LANGUAGE_5)::MSG : \
+                       //GET_LANG(LCD_LANGUAGE_5)::MSG   )
+	// Aquila
+	ui.language == 4 ? GET_LANG(LCD_LANGUAGE_5)::MSG : \
     ui.language == 5 ? GET_LANG(LCD_LANGUAGE_6)::MSG : \
     ui.language == 6 ? GET_LANG(LCD_LANGUAGE_7)::MSG : \
     ui.language == 7 ? GET_LANG(LCD_LANGUAGE_8)::MSG : \
     ui.language == 8 ? GET_LANG(LCD_LANGUAGE_9)::MSG : \
                        GET_LANG(LCD_LANGUAGE_10)::MSG   )
+	// End Aquila
   #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE  )::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
-                                 GET_LANG(LCD_LANGUAGE_5)::CHARSIZE, \
+                                 //GET_LANG(LCD_LANGUAGE_5)::CHARSIZE  )
+								 // Aquila
+								 GET_LANG(LCD_LANGUAGE_5)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_6)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_7)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_8)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_9)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_10)::CHARSIZE  )
+								 // End Aquila
 #else
   #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE)::MSG
   #define MAX_LANG_CHARSIZE LANG_CHARSIZE

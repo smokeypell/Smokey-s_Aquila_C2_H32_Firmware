@@ -56,11 +56,12 @@
 class Probe {
 public:
 
-  #if HAS_BED_PROBE 
+  #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
-    static xyz_pos_t default_probe_xyz_offset;
-    static xy_pos_t default_probe_xy_offset;
+    
+    static xyz_pos_t default_probe_xyz_offset; // Aquila
+    static xy_pos_t default_probe_xy_offset; // Aquila
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
       static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
@@ -109,16 +110,17 @@ public:
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
-
   #else
 
-    static const xyz_pos_t &offset; // See #16767
+    //static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767 // Marlin 2.0.8
+    static const xyz_pos_t &offset; // Aquila
 
     static bool set_deployed(const bool) { return false; }
 
     static bool can_reach(const_float_t rx, const_float_t ry) { return position_is_reachable(rx, ry); }
 
   #endif
+  // ------------------------------------------------------------------------------------------
 
   static void move_z_after_homing() {
     #ifdef Z_AFTER_HOMING
@@ -145,7 +147,10 @@ public:
   #if HAS_PROBE_XY_OFFSET
     static const xy_pos_t &offset_xy;
   #else
-    static const xy_pos_t &offset_xy;   // See #16767
+    
+    //static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767 // Marlin 2.0.8
+    static const xy_pos_t &offset_xy; // Aquila
+    
   #endif
 
   static bool deploy() { return set_deployed(true); }
@@ -194,14 +199,19 @@ public:
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
-			static constexpr xyz_pos_t default_probe_xyz_offset =
-        #if HAS_BED_PROBE
-          NOZZLE_TO_PROBE_OFFSET
+      
+      // Marlin 2.0.8 - Not in Aquila - Needed for MANUAL_PROBE
+      static constexpr xyz_pos_t default_probe_xyz_offset =
+        #if HAS_BED_PROBE 
+						NOZZLE_TO_PROBE_OFFSET
         #else
-          {{ {0} }}
+          //{ 0 } // original
+					{{ { 0 } }} // Reference error:  #3629 in Notes
         #endif
       ;
-      static constexpr xy_pos_t default_probe_xy_offset = {{ {default_probe_xyz_offset.x,  default_probe_xyz_offset.y} }};
+			// static constexpr xy_pos_t default_probe_xy_offset = { default_probe_xyz_offset.x,  default_probe_xyz_offset.y }; // original
+      static constexpr xy_pos_t default_probe_xy_offset = {{  { default_probe_xyz_offset.x,  default_probe_xyz_offset.y}  }}; // Reference error:  #3629 in Notes
+      // Marlin 2.0.8
 
     public:
       static constexpr bool can_reach(float x, float y) {

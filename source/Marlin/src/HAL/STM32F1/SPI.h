@@ -24,7 +24,9 @@
  * SOFTWARE.
  *****************************************************************************/
 #pragma once
-#ifdef USE_SPI
+
+#ifdef USE_SPI // Aquila
+
 #include <libmaple/libmaple_types.h>
 #include <libmaple/spi.h>
 #include <libmaple/dma.h>
@@ -423,4 +425,5 @@ static inline void waitSpiTxEnd(spi_dev *spi_d) {
 }
 
 extern SPIClass SPI;
-#endif
+
+#endif // Aquila

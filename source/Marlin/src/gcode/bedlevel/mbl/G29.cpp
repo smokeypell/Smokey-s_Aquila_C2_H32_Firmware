@@ -117,11 +117,10 @@ void GcodeSuite::G29() {
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);
         mbl.zigzag(mbl_probe_index++, ix, iy);
-        _manual_goto_xy(
-						{{ 
-								{mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]}
-						}}
-				);
+       
+				// Original
+				//_manual_goto_xy({mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
+				_manual_goto_xy( {{ { mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] } }} ); // Reference error:  #3629 in Notes
       }
       else {
         // Move to the after probing position

@@ -372,6 +372,19 @@ class Temperature {
     static inline bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     static inline bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
+    // Marlin 2.0.8
+    /*
+    #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
+      static celsius_t singlenozzle_temp[EXTRUDERS];
+      #if HAS_FAN
+        static uint8_t singlenozzle_fan_speed[EXTRUDERS];
+      #endif
+      static void singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool);
+    #endif
+    */
+    // End Marlin 2.0.8
+    
+    // Aquila
     #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
       #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
         static celsius_t singlenozzle_temp[EXTRUDERS];
@@ -381,6 +394,7 @@ class Temperature {
       #endif
       static void singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool);
     #endif
+    // End Aquila
 
     #if HEATER_IDLE_HANDLER
 
@@ -419,6 +433,14 @@ class Temperature {
 
   private:
 
+    // Marlin 2.0.8
+    /*
+    #if ENABLED(EARLY_WATCHDOG)
+      static bool inited;   // If temperature controller is running
+    #endif
+    */
+    // End Marlin 2.0.8
+
     static volatile bool raw_temps_ready;
 
     #if ENABLED(WATCH_HOTENDS)
@@ -438,9 +460,13 @@ class Temperature {
       #if ENABLED(WATCH_BED)
         static bed_watch_t watch_bed;
       #endif
+      //IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms); // Marlin 2.0.8
+      
+      // Aquila
       #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;   
-        #endif
+      #endif
+      // End Aquila
       static int16_t mintemp_raw_BED, maxtemp_raw_BED;
     #endif
 
@@ -448,7 +474,8 @@ class Temperature {
       #if ENABLED(WATCH_CHAMBER)
         static chamber_watch_t watch_chamber;
       #endif
-      static millis_t next_chamber_check_ms;
+      //TERN(PIDTEMPCHAMBER,,static millis_t next_chamber_check_ms); // Marlin 2.0.8
+      static millis_t next_chamber_check_ms; // Aquila
       static int16_t mintemp_raw_CHAMBER, maxtemp_raw_CHAMBER;
     #endif
 
@@ -603,8 +630,9 @@ class Temperature {
     /**
      * Call periodically to manage heaters
      */
-    static void manage_heater();//_O2; // Added _O2 to work around a compiler error
-
+    //static void manage_heater() _O2; // Added _O2 to work around a compiler error // Marlin 2.0.8
+    static void manage_heater();//_O2 // Aquila
+ 
     /**
      * Preheating hotends
      */
@@ -980,4 +1008,3 @@ class Temperature {
 };
 
 extern Temperature thermalManager;
-extern void HAL_TEMP_TIMER_ISR(void);

@@ -36,12 +36,13 @@
  */
 
 #define en 1234
-#define zh_CN 2345
-#if LCD_LANGUAGE == en || LCD_LANGUAGE == zh_CN
+//#define zh_CN 2345 // Aquila
+//#if LCD_LANGUAGE == en || LCD_LANGUAGE == zh_CN // Aquila
+#if LCD_LANGUAGE == en
   #define NOT_EXTENDED_ISO10646_1_5X7
 #endif
 #undef en
-#undef zh_CN
+#undef zh_CN // Aquila
 
 namespace Language_en {
   constexpr uint8_t    CHARSIZE                            = 2;
@@ -120,7 +121,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Pwr");
   PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Toggle Laser");
   PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE               = _UxGT("Toggle Blower");
-  PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Air Assist");
+  PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Air Assist"); // Aquila																				 
   PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("Test Pulse ms");
   PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Fire Pulse");
   PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Coolant Flow Fault");
@@ -454,9 +455,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Unload All");
   
-     PROGMEM Language_Str MSG_STOP_LOAD                    = _UxGT("Cancel Load Filament");     // "Load filament"     
-     PROGMEM Language_Str MSG_STOP_UNLOAD                    = _UxGT("Cancel Unload Filament");     // "unLoad filament" 
-     
+  // Aquila
+  PROGMEM Language_Str MSG_STOP_LOAD                    = _UxGT("Cancel Load Filament");     // "Load filament"     
+  PROGMEM Language_Str MSG_STOP_UNLOAD                    = _UxGT("Cancel Unload Filament");     // "unLoad filament"
+  // End Aquila
+  
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Attach Media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Release Media");
@@ -586,7 +589,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
-  PROGMEM Language_Str MSG_KILL_READCARD_FAILED              = _UxGT("ReadCard Failed");
+  
+  PROGMEM Language_Str MSG_KILL_READCARD_FAILED            = _UxGT("ReadCard Failed"); // Aquila
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -652,7 +656,8 @@ namespace Language_en {
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
   //
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Press Button", "to resume print"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Wait for", "filament change", "to start"));

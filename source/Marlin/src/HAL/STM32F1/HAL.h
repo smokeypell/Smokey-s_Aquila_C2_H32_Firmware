@@ -36,9 +36,10 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-#include "timers.h"
+#include "timers.h" // Aquila			   
 
 #include <stdint.h>
+//#include <util/atomic.h> // Marlin 2.0.8
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -52,9 +53,33 @@
 // Defines
 // ------------------------
 
-#define STM32_FLASH_SIZE 256
+/* // Marlin 2.0.8
+#ifndef STM32_FLASH_SIZE
+  #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
+    #define STM32_FLASH_SIZE 512
+  #else
+    #define STM32_FLASH_SIZE 256
+  #endif
+#endif
+*/
 
-#define _MSERIAL(X) Serial##X
+#define STM32_FLASH_SIZE 256 // Aquila
+
+/* // Marlin 2.0.8
+#ifdef SERIAL_USB
+  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+
+  #if !HAS_SD_HOST_DRIVE
+    #define UsbSerial MSerial0
+  #else
+    #define UsbSerial MarlinCompositeSerial
+  #endif
+#endif
+*/
+
+// #define _MSERIAL(X) MSerial##X // Marlin 2.0.8
+#define _MSERIAL(X) Serial##X // Aquila
 #define MSERIAL(X) _MSERIAL(X)
 
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
@@ -137,15 +162,20 @@ void HAL_idletask();
 #endif
 
 #ifndef digitalPinHasPWM
-  #define digitalPinHasPWM(P) (P)//(PIN_MAP[P].timer_device != nullptr)
+  //#define digitalPinHasPWM(P) !!PIN_MAP[P].timer_device // Marlin 2.0.8
+  #define digitalPinHasPWM(P) (P)//(PIN_MAP[P].timer_device != nullptr) // Aquila
   #define NO_COMPILE_TIME_PWM
 #endif
 
 #define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); (void)__iCliRetVal()
 #define CRITICAL_SECTION_END()    if (!primask) (void)__iSeiRetVal()
 #define ISRS_ENABLED() (!__get_primask())
-#define ENABLE_ISRS()  (__enable_irq())//__enable_irq((void)__iSeiRetVal())
-#define DISABLE_ISRS() (__disable_irq())//__disable_irq((void)__iCliRetVal())
+/* // Marlin 2.0.8
+#define ENABLE_ISRS()  ((void)__iSeiRetVal())
+#define DISABLE_ISRS() ((void)__iCliRetVal())
+*/
+#define ENABLE_ISRS()  (__enable_irq())//__enable_irq((void)__iSeiRetVal()) // Aquila
+#define DISABLE_ISRS() (__disable_irq())//__disable_irq((void)__iCliRetVal()) // Aquila
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -193,10 +223,11 @@ uint8_t HAL_get_reset_source();
 void HAL_reboot();
 
 void _delay_ms(const int delay);
-#ifdef GCC
+
+#ifdef GCC // Aquila
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
+#endif // Aquila
 /*
 extern "C" {
   int freeMemory();
@@ -207,12 +238,13 @@ extern "C" char* _sbrk(int incr);
 
 static inline int freeMemory() {
   volatile char top;
-  return top;
+  //return &top - _sbrk(0); // Marlin 2.0.8
+  return top; // Aquila
 }
 
-#ifdef GCC
+#ifdef GCC // Aquila	  
 #pragma GCC diagnostic pop
-#endif
+#endif // Aquila 
 
 //
 // ADC
@@ -238,8 +270,12 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define JTAG_DISABLE() //afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
-#define JTAGSWD_DISABLE() //afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+/* // Marlin 2.0.8
+#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+#define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
+*/
+#define JTAG_DISABLE() //afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY) // Aquila
+#define JTAGSWD_DISABLE() //afio_cfg_debug_ports(AFIO_DEBUG_NONE) // Aquila
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);

@@ -78,11 +78,21 @@ public:
     int8_t cy = (y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST);
     return constrain(cy, 0, GRID_MAX_CELLS_Y - 1);
   }
-  static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
-    return {{ 
-			{cell_index_x(x), cell_index_y(y)}
-		}};
+  
+	// Original
+	/*
+	static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+    return { cell_index_x(x), cell_index_y(y) };
   }
+	*/
+	static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+    return 
+			{{
+				{ cell_index_x(x), cell_index_y(y) }
+			}};
+  }
+	// Reference error:  #3629 in Notes
+	
   static inline xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t probe_index_x(const_float_t x) {
@@ -93,11 +103,21 @@ public:
     int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
-  static inline xy_int8_t probe_indexes(const_float_t x, const_float_t y) {
-    return {{ 
-			{probe_index_x(x), probe_index_y(y)}
-		}};
+  
+	 // Original
+	/*
+	static inline xy_int8_t probe_indexes(const_float_t x, const_float_t y) {
+    return { probe_index_x(x), probe_index_y(y) };
   }
+	*/
+	static inline xy_int8_t probe_indexes(const_float_t x, const_float_t y) {
+    return 
+			{{
+				{ probe_index_x(x), probe_index_y(y) }
+			}};
+  }
+	// Reference error:  #3629 in Notes
+	
   static inline xy_int8_t probe_indexes(const xy_pos_t &xy) { return probe_indexes(xy.x, xy.y); }
 
   static float calc_z0(const_float_t a0, const_float_t a1, const_float_t z1, const_float_t a2, const_float_t z2) {
@@ -108,10 +128,10 @@ public:
 
   static float get_z(const xy_pos_t &pos
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      , const float &factor=1.0f
+      , const_float_t factor=1.0f
     #endif
-	) {
-		#if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  ) {
+    #if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
       constexpr float factor = 1.0f;
     #endif
     const xy_int8_t ind = cell_indexes(pos);

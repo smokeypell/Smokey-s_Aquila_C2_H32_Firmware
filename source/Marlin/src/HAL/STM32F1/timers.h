@@ -26,7 +26,8 @@
  */
 
 #include <stdint.h>
-#include "../board/startup.h"
+//#include <libmaple/timer.h> // Marlin 2.0.8
+#include "../board/startup.h" // Aquila
 #include "../../core/boards.h"
 
 // ------------------------
@@ -44,6 +45,14 @@ typedef uint16_t hal_timer_t;
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
+/* // Marlin 2.0.8
+#ifndef STEP_TIMER_CHAN
+  #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
+#ifndef TEMP_TIMER_CHAN
+  #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
+*/ // End Marlin 2.0.8
 
 /**
  * Note: Timers may be used by platforms and libraries
@@ -59,28 +68,98 @@ typedef uint16_t hal_timer_t;
  *   - Otherwise it uses Timer 8 on boards with STM32_HIGH_DENSITY
  *     or Timer 4 on other boards.
  */
-#define STEP_TIMER_NUM 		2 // TIMER0 CHB
-#define TEMP_TIMER_NUM 	1    // TIMER0 CHA
-#define PULSE_TIMER_NUM 	STEP_TIMER_NUM
+ 
+#define STEP_TIMER_NUM 		2 // TIMER0 CHB // Aquila
+#define TEMP_TIMER_NUM 	1    // TIMER0 CHA // Aquila
+#define PULSE_TIMER_NUM 	STEP_TIMER_NUM // Aquila
+
+/* // Marlin 2.0.8 
+#ifndef STEP_TIMER_NUM
+  #if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
+    #define STEP_TIMER_NUM      4  // For C8/CB boards, use timer 4
+  #else
+    #define STEP_TIMER_NUM      5  // for other boards, five is fine.
+  #endif
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        2  // Timer Index for Temperature
+  //#define TEMP_TIMER_NUM      4  // 2->4, Timer 2 for Stepper Current PWM
+#endif
+
+#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE)
+  // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
+  #ifdef STM32_HIGH_DENSITY
+    #define SERVO0_TIMER_NUM 8  // tone.cpp uses Timer 4
+  #else
+    #define SERVO0_TIMER_NUM 3  // tone.cpp uses Timer 8
+  #endif
+#else
+  #define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
+#endif
+
+#define STEP_TIMER_IRQ_PRIO 2
+#define TEMP_TIMER_IRQ_PRIO 3
+#define SERVO0_TIMER_IRQ_PRIO 1
+*/ // Marlin 2.0.8
 
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
-#define TEMP_TIMER_PRESCALE     16ul // prescaler for setting Temp timer, 72Khz
+//#define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz // Marlin 2.0.8
+#define TEMP_TIMER_PRESCALE     16ul // prescaler for setting Temp timer, 72Khz // Aquila
 
-#define STEPPER_TIMER_PRESCALE 16ul             // prescaler for setting stepper timer
-#define STEPPER_TIMER_RATE     (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer  84/16Mhz = 5250000M
+//#define STEPPER_TIMER_PRESCALE 18             // prescaler for setting stepper timer, 4Mhz
+#define STEPPER_TIMER_PRESCALE 16ul // Aquila
+#define STEPPER_TIMER_RATE     (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
+//#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer // Marlin 2.0.8
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() timer_enable_irq(STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() timer_disable_irq(STEP_TIMER_NUM)
+/* // Marlin 2.0.8
+timer_dev* get_timer_dev(int number);
+#define TIMER_DEV(num) get_timer_dev(num)
+#define STEP_TIMER_DEV TIMER_DEV(STEP_TIMER_NUM)
+#define TEMP_TIMER_DEV TIMER_DEV(TEMP_TIMER_NUM)
+*/
+
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() timer_enable_irq(STEP_TIMER_NUM) // Aquila
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() timer_disable_irq(STEP_TIMER_NUM) // Aquila
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM) // Aquila
+
+/* // Marlin 2.0.8
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() timer_enable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() timer_disable_irq(STEP_TIMER_DEV, STEP_TIMER_CHAN)
 #define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+*/
 
-#define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_NUM) // Aquila
+#define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_NUM) // Aquila                                                                     
+#define HAL_timer_get_count(timer_num) timer_get_count(timer_num) // Aquila                                                                         
 
-#define HAL_timer_get_count(timer_num) timer_get_count(timer_num)
+/* // Marlin 2.0.8
+#define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
+#define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
+#define HAL_timer_get_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
+*/
+
+// TODO change this
+
+/* // Marlin 2.0.8
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler()
+#endif
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
+#endif
+
+extern "C" {
+  void tempTC_Handler();
+  void stepTC_Handler();
+}
+*/
 
 // ------------------------
 // Public Variables
@@ -109,9 +188,48 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
  * Todo: Look at that possibility later.
  */
 
-void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare);
+void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare); // Aquila
 
+/* // Marlin 2.0.8
+FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
+  switch (timer_num) {
+  case STEP_TIMER_NUM:
+    // NOTE: WE have set ARPE = 0, which means the Auto reload register is not preloaded
+    // and there is no need to use any compare, as in the timer mode used, setting ARR to the compare value
+    // will result in exactly the same effect, ie trigerring an interrupt, and on top, set counter to 0
+    timer_set_reload(STEP_TIMER_DEV, compare); // We reload direct ARR as needed during counting up
+    break;
+  case TEMP_TIMER_NUM:
+    timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, compare);
+    break;
+  }
+}
 
-#define HAL_timer_isr_prologue(TIMER_NUM)
+FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
+  switch (timer_num) {
+  case STEP_TIMER_NUM:
+    // No counter to clear
+    timer_generate_update(STEP_TIMER_DEV);
+    return;
+  case TEMP_TIMER_NUM:
+    timer_set_count(TEMP_TIMER_DEV, 0);
+    timer_generate_update(TEMP_TIMER_DEV);
+    return;
+  }
+}
+*/
+
+#define HAL_timer_isr_prologue(TIMER_NUM) // Aquila                                         
 #define HAL_timer_isr_epilogue(TIMER_NUM)
+
+/* // Marlin 2.0.8
+// No command is available in framework to turn off ARPE bit, which is turned on by default in libmaple.
+// Needed here to reset ARPE=0 for stepper timer
+FORCE_INLINE static void timer_no_ARR_preload_ARPE(timer_dev *dev) {
+  bb_peri_set_bit(&(dev->regs).gen->CR1, TIMER_CR1_ARPE_BIT, 0);
+}
+
+void timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority);
+*/
+
 #define TIMER_OC_NO_PRELOAD 0 // Need to disable preload also on compare registers.

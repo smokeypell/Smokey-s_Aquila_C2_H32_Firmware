@@ -31,7 +31,10 @@ char conv[8] = { 0 };
 #define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
 #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
 #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
-#define INTFLOAT(V,N) (((V) * 10 * POW(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10?
+
+//#define INTFLOAT(V,N) (((V) * 10 * pow(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10? // Marlin 2.0.8
+#define INTFLOAT(V,N) (((V) * 10 * POW(10, N) + ((V) < 0 ? -5: 5)) / 10)      // pow10? // Aquila
+
 #define UINTFLOAT(V,N) INTFLOAT((V) < 0 ? -(V) : (V), N)
 
 // Format uint8_t (0-100) as rj string with 123% / _12% / __1% format
@@ -399,13 +402,15 @@ const char* ftostr52sp(const_float_t f) {
   conv[2] = RJDIGIT(i, 1000);
   conv[3] = DIGIMOD(i, 100);
 
-  if ((dig = i % 10)>0) {          // second digit after decimal point?
+  //if ((dig = i % 10)) {          // second digit after decimal point? // Marlin 2.0.8
+  if ((dig = i % 10)>0) { // Aquila
     conv[4] = '.';
     conv[5] = DIGIMOD(i, 10);
     conv[6] = DIGIT(dig);
   }
   else {
-    if ((dig = (i / 10) % 10)>0) { // first digit after decimal point?
+    //if ((dig = (i / 10) % 10)) { // first digit after decimal point? // Marlin 2.0.8
+    if ((dig = (i / 10) % 10)>0) { // Aquila
       conv[4] = '.';
       conv[5] = DIGIT(dig);
     }

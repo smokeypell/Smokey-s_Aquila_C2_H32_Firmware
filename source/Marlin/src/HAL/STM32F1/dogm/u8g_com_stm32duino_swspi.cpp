@@ -35,25 +35,25 @@ static uint8_t SPI_speed = LCD_SPI_SPEED;
 static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1) {
   LOOP_L_N(i, 8) {
     if (spi_speed == 0) {
-      U8G_WRITE(DOGLCD_MOSI, !!(b & 0x80));
-      U8G_WRITE(DOGLCD_SCK, HIGH);
+      WRITE(DOGLCD_MOSI, !!(b & 0x80));
+      WRITE(DOGLCD_SCK, HIGH);
       b <<= 1;
       if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
-      U8G_WRITE(DOGLCD_SCK, LOW);
+      WRITE(DOGLCD_SCK, LOW);
     }
     else {
       const uint8_t state = (b & 0x80) ? HIGH : LOW;
       LOOP_L_N(j, spi_speed)
-        U8G_WRITE(DOGLCD_MOSI, state);
+        WRITE(DOGLCD_MOSI, state);
 
       LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
-        U8G_WRITE(DOGLCD_SCK, HIGH);
+        WRITE(DOGLCD_SCK, HIGH);
 
       b <<= 1;
       if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
 
       LOOP_L_N(j, spi_speed)
-        U8G_WRITE(DOGLCD_SCK, LOW);
+        WRITE(DOGLCD_SCK, LOW);
     }
   }
   return b;
@@ -63,20 +63,20 @@ static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, c
   LOOP_L_N(i, 8) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     if (spi_speed == 0) {
-      U8G_WRITE(DOGLCD_SCK, LOW);
-      U8G_WRITE(DOGLCD_MOSI, state);
-      U8G_WRITE(DOGLCD_MOSI, state);  // need some setup time
-      U8G_WRITE(DOGLCD_SCK, HIGH);
+      WRITE(DOGLCD_SCK, LOW);
+      WRITE(DOGLCD_MOSI, state);
+      WRITE(DOGLCD_MOSI, state);  // need some setup time
+      WRITE(DOGLCD_SCK, HIGH);
     }
     else {
       LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
-        U8G_WRITE(DOGLCD_SCK, LOW);
+        WRITE(DOGLCD_SCK, LOW);
 
       LOOP_L_N(j, spi_speed)
-        U8G_WRITE(DOGLCD_MOSI, state);
+        WRITE(DOGLCD_MOSI, state);
 
       LOOP_L_N(j, spi_speed)
-        U8G_WRITE(DOGLCD_SCK, HIGH);
+        WRITE(DOGLCD_SCK, HIGH);
     }
     b <<= 1;
     if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
@@ -94,12 +94,12 @@ static void u8g_sw_spi_HAL_STM32F1_shift_out(uint8_t val) {
 
 static uint8_t swSpiInit(const uint8_t spi_speed) {
   #if PIN_EXISTS(LCD_RESET)
-    U8G_SET_OUTPUT(LCD_RESET_PIN);
+    SET_OUTPUT(LCD_RESET_PIN);
   #endif
-  U8G_SET_OUTPUT(DOGLCD_A0);
-  U8G_OUT_WRITE(DOGLCD_SCK, LOW);
-  U8G_OUT_WRITE(DOGLCD_MOSI, LOW);
-  U8G_OUT_WRITE(DOGLCD_CS, HIGH);
+  SET_OUTPUT(DOGLCD_A0);
+  OUT_WRITE(DOGLCD_SCK, LOW);
+  OUT_WRITE(DOGLCD_MOSI, LOW);
+  OUT_WRITE(DOGLCD_CS, HIGH);
   return spi_speed;
 }
 
@@ -114,7 +114,7 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
 
     case U8G_COM_MSG_RESET:
       #if PIN_EXISTS(LCD_RESET)
-        U8G_WRITE(LCD_RESET_PIN, arg_val);
+        WRITE(LCD_RESET_PIN, arg_val);
       #endif
       break;
 
@@ -122,15 +122,15 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       #if ENABLED(FYSETC_MINI_12864) // This LCD SPI is running mode 3 while SD card is running mode 0
         if (arg_val) {               // SCK idle state needs to be set to the proper idle state before
                                      // the next chip select goes active
-          U8G_WRITE(DOGLCD_SCK, HIGH);   // Set SCK to mode 3 idle state before CS goes active
-          U8G_WRITE(DOGLCD_CS, LOW);
+          WRITE(DOGLCD_SCK, HIGH);   // Set SCK to mode 3 idle state before CS goes active
+          WRITE(DOGLCD_CS, LOW);
         }
         else {
-          U8G_WRITE(DOGLCD_CS, HIGH);
-          U8G_WRITE(DOGLCD_SCK, LOW);  // Set SCK to mode 0 idle state after CS goes inactive
+          WRITE(DOGLCD_CS, HIGH);
+          WRITE(DOGLCD_SCK, LOW);  // Set SCK to mode 0 idle state after CS goes inactive
         }
       #else
-        U8G_WRITE(DOGLCD_CS, !arg_val);
+        WRITE(DOGLCD_CS, !arg_val);
       #endif
       break;
 
@@ -156,7 +156,7 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
     } break;
 
     case U8G_COM_MSG_ADDRESS: /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-      U8G_WRITE(DOGLCD_A0, arg_val);
+      WRITE(DOGLCD_A0, arg_val);
       break;
   }
   return 1;

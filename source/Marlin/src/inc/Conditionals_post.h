@@ -3013,7 +3013,8 @@
 
 // Fallback SPI Speed for SD
 #if ENABLED(SDSUPPORT) && !defined(SD_SPI_SPEED)
-  #define SD_SPI_SPEED 0
+  #define SD_SPI_SPEED 0 // Aquila
+  //#define SD_SPI_SPEED SPI_FULL_SPEED // Marlin 2.0.8
 #endif
 
 // Defined here to catch the above defines

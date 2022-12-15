@@ -1194,9 +1194,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
+        //TERN_(SINGLENOZZLE_STANDBY_TEMP, thermalManager.singlenozzle_change(old_tool, new_tool)); // Marlin 2.0.8
+        
+        // Aquila
         #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
           thermalManager.singlenozzle_change(old_tool, new_tool);
         #endif
+        // End Aquila
 
         #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
           if (should_swap && !too_cold) {

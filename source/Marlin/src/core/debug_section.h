@@ -28,7 +28,8 @@ class SectionLog {
 public:
   SectionLog(PGM_P const msg=nullptr, bool inbug=true) {
     the_msg = msg;
-    if ((debug = inbug)>0) echo_msg(PSTR(">>>"));
+    //if ((debug = inbug)) echo_msg(PSTR(">>>"));
+	if ((debug = inbug)>0) echo_msg(PSTR(">>>")); // Added in Aquila
   }
 
   ~SectionLog() { if (debug) echo_msg(PSTR("<<<")); }

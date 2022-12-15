@@ -46,7 +46,11 @@
 #endif
 
 inline void watchdog_refresh() {
+  //TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
+  
+  // Aquila
   #if ENABLED(USE_WATCHDOG)
     HAL_watchdog_refresh();
   #endif
+  // End Aquila
 }

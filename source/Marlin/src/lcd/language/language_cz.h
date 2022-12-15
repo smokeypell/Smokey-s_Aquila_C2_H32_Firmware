@@ -549,7 +549,8 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
   PROGMEM Language_Str MSG_MAZE                            = _UxGT("Bludiště");
 
-  #if 0//LCD_HEIGHT >= 4
+  //#if LCD_HEIGHT >= 4 // Marlin 2.0.8
+  #if 0//LCD_HEIGHT >= 4 // Aquila
     // Up to 3 lines allowed
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Stikněte tlačítko", "pro obnovení tisku"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkování..."));

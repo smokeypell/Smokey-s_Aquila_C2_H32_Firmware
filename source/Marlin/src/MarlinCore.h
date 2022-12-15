@@ -26,7 +26,7 @@
 #ifdef DEBUG_GCODE_PARSER
   #include "gcode/parser.h"
 #endif
-#include "../board/startup.h"
+#include "../board/startup.h" // Aquila
 
 #include <math.h>
 #include <stdio.h>
@@ -109,6 +109,7 @@ bool pin_is_protected(const pin_t pin);
   inline bool kill_state() { return READ(KILL_PIN) == KILL_PIN_STATE; }
 #endif
 
+// Aquila
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -120,5 +121,6 @@ void loop();
 #ifdef __cplusplus
 } // extern "C"
 #endif
+// End Aquila
 
 extern const char M112_KILL_STR[];

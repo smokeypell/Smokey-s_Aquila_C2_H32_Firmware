@@ -160,18 +160,25 @@ bool MarlinUI::detected() { return true; }
           #endif
           u8g.firstPage();
           do { draw_custom_bootscreen(f); } while (u8g.nextPage());
-          if (frame_time) safe_delay(frame_time);
+          
+          //if (frame_time) early_safe_delay(frame_time); // Marlin 2.0.8
+          if (frame_time) safe_delay(frame_time); // Aquila
         }
 
       #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
         #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
       #endif
       #if CUSTOM_BOOTSCREEN_TIMEOUT
-        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+        
+        //early_safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT); // Marlin 2.0.8
+        safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT); // Aquila
+        
       #endif
     }
   #endif // SHOW_CUSTOM_BOOTSCREEN
-#ifdef SHOW_MARLIN_BOOTSCREEN
+
+  #ifdef SHOW_MARLIN_BOOTSCREEN // Aquila
+  
   // Two-part needed to display all info
   constexpr bool two_part = ((LCD_PIXEL_HEIGHT) - (START_BMPHEIGHT)) < ((MENU_FONT_ASCENT) * 2);
   constexpr uint8_t bootscreen_pages = 1 + two_part;
@@ -226,7 +233,10 @@ bool MarlinUI::detected() { return true; }
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
       LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
-        if (frame_time) safe_delay(frame_time);
+        
+        //if (frame_time) early_safe_delay(frame_time); //Marlin 2.0.8
+        if (frame_time) safe_delay(frame_time); // Aquila
+        
       }
     #endif
   }
@@ -235,19 +245,31 @@ bool MarlinUI::detected() { return true; }
   void MarlinUI::show_marlin_bootscreen() {
     for (uint8_t q = bootscreen_pages; q--;) {
       draw_marlin_bootscreen(q == 0);
-      if (q) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages);
+      
+      //if (q) early_safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages); // Marlin 2.0.8
+      if (q) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages); // Aquila
+      
     }
   }
-#endif
+
+#endif // Aquila
+
   void MarlinUI::show_bootscreen() {
     TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
-    TERN_(SHOW_MARLIN_BOOTSCREEN, show_marlin_bootscreen());
+    
+    TERN_(SHOW_MARLIN_BOOTSCREEN, show_marlin_bootscreen()); // Aquila
+    //show_marlin_bootscreen(); // Marlin 2.0.8
+    
   }
-    #ifdef SHOW_MARLIN_BOOTSCREEN
-      void MarlinUI::bootscreen_completion(const millis_t sofar) {
-        if ((BOOTSCREEN_TIMEOUT) / bootscreen_pages > sofar) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages - sofar);
-      }
-    #endif
+  
+  #ifdef SHOW_MARLIN_BOOTSCREEN // Aquila
+  
+  void MarlinUI::bootscreen_completion(const millis_t sofar) {
+    if ((BOOTSCREEN_TIMEOUT) / bootscreen_pages > sofar) safe_delay((BOOTSCREEN_TIMEOUT) / bootscreen_pages - sofar);
+  }
+  
+  #endif // Aquila
+  
 #endif // SHOW_BOOTSCREEN
 
 #if ENABLED(LIGHTWEIGHT_UI)
@@ -264,11 +286,17 @@ void MarlinUI::init_lcd() {
   }
 
   #if PIN_EXISTS(LCD_BACKLIGHT)
-    U8G_OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
+    
+    //OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away // Marlin 2.0.8
+    U8G_OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Aquila
+    
   #endif
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
-    U8G_SET_OUTPUT(LCD_PINS_DC);
+    
+    //SET_OUTPUT(LCD_PINS_DC); // Marlin 2.0.8
+    U8G_SET_OUTPUT(LCD_PINS_DC); // Aquila
+    
     #ifndef LCD_RESET_PIN
       #define LCD_RESET_PIN LCD_PINS_RS
     #endif
@@ -276,15 +304,24 @@ void MarlinUI::init_lcd() {
 
   #if PIN_EXISTS(LCD_RESET)
     // Perform a clean hardware reset with needed delays
-    U8G_OUT_WRITE(LCD_RESET_PIN, LOW);
+    
+    //OUT_WRITE(LCD_RESET_PIN, LOW); // Marlin 2.0.8
+    U8G_OUT_WRITE(LCD_RESET_PIN, LOW); // Aquila
+    
     _delay_ms(5);
-    U8G_WRITE(LCD_RESET_PIN, HIGH);
+    
+    //WRITE(LCD_RESET_PIN, HIGH); // Marlin 2.0.8
+    U8G_WRITE(LCD_RESET_PIN, HIGH); // Aquila
+    
     _delay_ms(5);
     u8g.begin();
   #endif
 
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    U8G_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    
+    //WRITE(LCD_BACKLIGHT_PIN, HIGH); // Marlin 2.0.8
+    U8G_WRITE(LCD_BACKLIGHT_PIN, HIGH); // Aquila
+    
   #endif
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
@@ -479,7 +516,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     ui.draw_select_screen_prompt(pref, string, suff);
     draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     const u8g_uint_t xpos = (LCD_WIDTH) / (USE_WIDE_GLYPH ? 2 : 1);
-    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
+    
+    //draw_boxed_string(xpos - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno); // Marlin 2.0.8
+    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno); // Aquila
   }
 
   #if ENABLED(SDSUPPORT)

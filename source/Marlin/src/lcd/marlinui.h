@@ -207,11 +207,13 @@ public:
     static inline void set_language(const uint8_t lang) {
       if (lang < NUM_LANGUAGES) {
         language = lang;
-        //return_to_status();
+        //return_to_status(); // Marlin 2.0.8
         refresh();
       }
     }
   #endif
+  
+  // Aquila
   static bool load_flag,unload_flag,pause_action_flag;
       static void tempload();
      static void auto_Desizing();
@@ -222,6 +224,8 @@ public:
         unload_flag = 0;
      }
      static void abort_load();
+  // End Aquila
+
   #if ENABLED(SOUND_MENU_ITEM)
     static bool buzzer_enabled; // Initialized by settings.load()
   #else

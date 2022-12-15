@@ -30,8 +30,8 @@
   ****************************************************************************/
 
 #include "../../../inc/MarlinConfig.h"
-#if ENABLED(DWIN_CREALITY_LCD)
-
+                              
+#if ENABLED(DWIN_CREALITY_LCD) // Aquila
 
 /*********************** Encoder Set ***********************/
 
@@ -94,4 +94,5 @@ ENCODER_DiffState Encoder_ReceiveAnalyze();
   void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval);
 
 #endif // LCD_LED
-#endif
+      
+#endif // Aquila

@@ -392,7 +392,7 @@ class Stepper {
 
     static inline bool suspend() {
       const bool awake = is_awake();
-      if (awake) DISABLE_STEPPER_DRIVER_INTERRUPT();
+			if (awake) DISABLE_STEPPER_DRIVER_INTERRUPT();
       return awake;
     }
 
@@ -601,11 +601,13 @@ class Stepper {
     #if HAS_MICROSTEPS
       static void microstep_init();
     #endif
-    static void AWAIT_TIMED_PULSE(uint8_t DIR);
-    static void AWAIT_HIGH_PULSE(void);
-    static void AWAIT_LOW_PULSE(void);
+    
+    static void AWAIT_TIMED_PULSE(uint8_t DIR); // Aquila
+    static void AWAIT_HIGH_PULSE(void); // Aquila
+    static void AWAIT_LOW_PULSE(void); // Aquila
 
 };
 
 extern Stepper stepper;
-extern void HAL_STEP_TIMER_ISR(void);
+
+extern void HAL_STEP_TIMER_ISR(void); // Aquila

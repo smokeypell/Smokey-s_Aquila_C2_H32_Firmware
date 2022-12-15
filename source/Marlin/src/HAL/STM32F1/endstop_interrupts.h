@@ -50,9 +50,36 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
+
+/* //Marlin 2.0.8
+void endstop_ISR() { endstops.update(); }
+
+void setup_endstop_interrupts() {
+  #define _ATTACH(P) attachInterrupt(P, endstop_ISR, CHANGE)
+  TERN_(HAS_X_MAX, _ATTACH(X_MAX_PIN));
+  TERN_(HAS_X_MIN, _ATTACH(X_MIN_PIN));
+  TERN_(HAS_Y_MAX, _ATTACH(Y_MAX_PIN));
+  TERN_(HAS_Y_MIN, _ATTACH(Y_MIN_PIN));
+  TERN_(HAS_Z_MAX, _ATTACH(Z_MAX_PIN));
+  TERN_(HAS_Z_MIN, _ATTACH(Z_MIN_PIN));
+  TERN_(HAS_X2_MAX, _ATTACH(X2_MAX_PIN));
+  TERN_(HAS_X2_MIN, _ATTACH(X2_MIN_PIN));
+  TERN_(HAS_Y2_MAX, _ATTACH(Y2_MAX_PIN));
+  TERN_(HAS_Y2_MIN, _ATTACH(Y2_MIN_PIN));
+  TERN_(HAS_Z2_MAX, _ATTACH(Z2_MAX_PIN));
+  TERN_(HAS_Z2_MIN, _ATTACH(Z2_MIN_PIN));
+  TERN_(HAS_Z3_MAX, _ATTACH(Z3_MAX_PIN));
+  TERN_(HAS_Z3_MIN, _ATTACH(Z3_MIN_PIN));
+  TERN_(HAS_Z4_MAX, _ATTACH(Z4_MAX_PIN));
+  TERN_(HAS_Z4_MIN, _ATTACH(Z4_MIN_PIN));
+  TERN_(HAS_Z_MIN_PROBE_PIN, _ATTACH(Z_MIN_PROBE_PIN));
+*/ // End Marlin 2.0.8
+
+ // Aquila
 inline void endstop_ISR() { endstops.update(); }
 
 inline void setup_endstop_interrupts() {
+															
   #if HAS_X_MIN
     attachInterrupt(X_MIN_PIN, ExtInt_X_MIN_Callback, 0, CHANGE);
   #endif
@@ -62,10 +89,14 @@ inline void setup_endstop_interrupts() {
   #if HAS_Z_MIN
     attachInterrupt(Z_MIN_PIN, ExtInt_Z_MIN_Callback, 2, CHANGE);
   #endif
+										 									 
   #if HAS_Z2_MIN
     attachInterrupt(Z2_MIN_PIN, ExtInt_Z2_MIN_Callback, 3, CHANGE);
   #endif
+										 
+										 
   #if HAS_Z_MIN_PROBE_PIN
     attachInterrupt(Z_MIN_PROBE_PIN, ExtInt_Z_MIN_PROBE_Callback, 4, CHANGE);
   #endif
+  // End Aquila
 }

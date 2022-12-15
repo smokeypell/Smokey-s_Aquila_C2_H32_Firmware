@@ -136,7 +136,7 @@ bool SdBaseFile::contiguousRange(uint32_t *bgnBlock, uint32_t *endBlock) {
       return true;
     }
   }
-  //return false;
+  //return false; // Commented out in Aquila
 }
 
 /**
@@ -805,7 +805,7 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
       return openCachedEntry(index, oflag);
     }
   }
-  //return false;
+  //return false; // Commented out in Aquila
 }
 
 #if 0
@@ -1235,7 +1235,7 @@ bool SdBaseFile::remove() {
 
   // write entry to SD
   return vol_->cacheFlush();
-  //return true;
+  //return true; // Commented out in Aquila
 }
 
 /**

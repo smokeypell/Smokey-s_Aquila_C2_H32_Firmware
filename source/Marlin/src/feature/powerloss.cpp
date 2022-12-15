@@ -133,7 +133,6 @@ void PrintJobRecovery::load() {
     (void)file.read(&info, sizeof(info));
     close();
   }
-  
   debug(PSTR("Load"));
 }
 
@@ -166,7 +165,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
         || ELAPSED(ms, next_save_ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
-      || current_position.z > info.current_position.z + 0.05f
+      //|| current_position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
+	  || current_position.z > info.current_position.z + 0.05f // Aquila
     #endif
   ) {
 
@@ -181,17 +181,24 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
     // Machine state
     info.current_position = current_position;
+    //info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s)); // Not in Aquila
     info.zraise = zraise;
+
+    //TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat); // Not in Aquila
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
-    info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
-    #if EXTRUDERS > 1
+	info.feedrate = uint16_t(feedrate_mm_s * 60.0f); // Aquila
+	
+
+    //#if HAS_MULTI_EXTRUDER
+	#if EXTRUDERS > 1 // Aquila
       info.active_extruder = active_extruder;
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       info.volumetric_enabled = parser.volumetric_enabled;
-      #if EXTRUDERS > 1
+      //#if HAS_MULTI_EXTRUDER
+	  #if EXTRUDERS > 1 // Aquila
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
@@ -199,17 +206,20 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     #endif
 
     #if EXTRUDERS
-      HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target;
+      //HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
+	  HOTEND_LOOP() info.target_temperature[e] = thermalManager.temp_hotend[e].target; // Aquila
     #endif
 
-    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target);
+    //TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
+	TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.temp_bed.target); // Aquila
 
     #if HAS_FAN
       COPY(info.fan_speed, thermalManager.fan_speed);
     #endif
 
     #if HAS_LEVELING
-      info.leveling = planner.leveling_active;
+      //info.flag.leveling = planner.leveling_active;
+	  info.leveling = planner.leveling_active; // Aquila
       info.fade = TERN0(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height);
     #endif
 
@@ -220,12 +230,28 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       info.retract_hop = fwretract.current_hop;
     #endif
 
+    /* Marlin 2.0.8
+	// Elapsed print job time
+    info.print_job_elapsed = print_job_timer.duration();
+
     // Relative axis modes
+    info.axis_relative = gcode.axis_relative;
+	*/
+	
+	// Aquila
+	// Relative axis modes
     info.axis_relative = gcode.axis_relative;
 
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();
+	// End Aquila
 
+    /*------------- Not in Aquila --------------
+	// Misc. Marlin flags
+    info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
+    info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
+    -------------------------------------------- */
+	
     write();
   }
 }
@@ -234,7 +260,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
-    void PrintJobRecovery::retract_and_lift(const float &zraise) {
+    //void PrintJobRecovery::retract_and_lift(const_float_t zraise) {
+	void PrintJobRecovery::retract_and_lift(const float &zraise) { // Aquila
       #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
 
         gcode.set_relative_mode(true);  // Use relative coordinates
@@ -325,26 +352,65 @@ void PrintJobRecovery::resume() {
 
   const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
 
+  /* -------- Not in Aquila ----------------
+  
+  // Apply the dry-run flag if enabled
+  if (info.flag.dryrun) marlin_debug_flags |= MARLIN_DEBUG_DRYRUN;
+
+  // Restore cold extrusion permission
+  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude = info.flag.allow_cold_extrusion);
+  ------------------------------------------ */
+  
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
   #endif
 
+  /* ------------- Moved and changed in Aquila ------------
+  #if HAS_HEATED_BED
+    const celsius_t bt = info.target_temperature_bed;
+    if (bt) {
+      // Restore the bed temperature
+      sprintf_P(cmd, PSTR("M190 S%i"), bt);
+      gcode.process_subcommands_now(cmd);
+    }
+  #endif
+
+  // Restore all hotend temperatures
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      const celsius_t et = info.target_temperature[e];
+      if (et) {
+        #if HAS_MULTI_HOTEND
+          sprintf_P(cmd, PSTR("T%i S"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109 S%i"), et);
+        gcode.process_subcommands_now(cmd);
+      }
+    }
+  #endif
+  ---------------------------------------------------------- */
+  
   // Reset E, raise Z, home XY...
   #if Z_HOME_DIR > 0
 
     // If Z homing goes to max, just reset E and home all
     gcode.process_subcommands_now_P(PSTR(
       "G92.9 E0\n"
-      "G28R0" TERN_(MARLIN_DEV_MODE, "S")
+      //"G28R0"
+	  "G28R0" TERN_(MARLIN_DEV_MODE, "S") // Aquila
     ));
 
   #else // "G92.9 E0 ..."
 
-    // Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
+    // If a Z raise occurred at outage restore Z, otherwise raise Z now
+    //sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
+	
+	// Aquila 
+	// Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
     // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-
-    sprintf_P(cmd, PSTR("G92.9 E0 "
+	sprintf_P(cmd, PSTR("G92.9 E0 "
         #if ENABLED(BACKUP_POWER_SUPPLY)
           "Z%s"                             // Z was already raised at outage
         #else
@@ -353,21 +419,45 @@ void PrintJobRecovery::resume() {
       ),
       dtostrf(info.zraise, 1, 3, str_1)
     );
+	// End Aquila
+	
     gcode.process_subcommands_now(cmd);
 
+    // Home safely with no Z raise
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
-      TERN_(MARLIN_DEV_MODE, "S")           // Simulated Homing
-      TERN_(IS_CARTESIAN, "XY")             // Don't home Z on Cartesian
+      //#if IS_CARTESIAN && (DISABLED(POWER_LOSS_RECOVER_ZHOME) || defined(POWER_LOSS_ZHOME_POS))
+        //"XY"                                // Don't home Z on Cartesian unless overridden
+      //#endif
+	  
+	  TERN_(MARLIN_DEV_MODE, "S")           // Simulated Homing // Aquila
+      TERN_(IS_CARTESIAN, "XY")             // Don't home Z on Cartesian // Aquila
     ));
 
   #endif
 
-  // Pretend that all axes are homed
-	set_all_homed();
+  #ifdef POWER_LOSS_ZHOME_POS
+    // If defined move to a safe Z homing position that avoids the print
+    constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
+    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
+    gcode.process_subcommands_now(cmd);
+  #endif
+
+  // Ensure that all axes are marked as homed
+  set_all_homed();
+
+  /*--------- Not in Aquila ----------------
+  #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
+    // Now move to ZsavedPos + POWER_LOSS_ZRAISE
+    sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    gcode.process_subcommands_now(cmd);
+  #endif
+  ------------------------------------------ */
+
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
-    #if EXTRUDERS > 1
+    //#if HAS_MULTI_EXTRUDER
+	#if EXTRUDERS > 1 // Aquila
       for (int8_t e = 0; e < EXTRUDERS; e++) {
         sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
@@ -384,7 +474,8 @@ void PrintJobRecovery::resume() {
     #endif
   #endif
 
-  #if HAS_HEATED_BED
+	// Aquila - Marlin 2.0.8 version commented out above
+	#if HAS_HEATED_BED
     const int16_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
@@ -407,21 +498,26 @@ void PrintJobRecovery::resume() {
       }
     }
   #endif
-
+  // End Aquila
+  
   // Select the previously active tool (with no_move)
-  #if EXTRUDERS > 1
+  //#if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1 // Aquila
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
 
   // Restore print cooling fan speeds
-  FANS_LOOP(i) {
-    uint8_t f = info.fan_speed[i];
-    if (f) {
-      sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
-      gcode.process_subcommands_now(cmd);
+  //#if HAS_FAN // Not wrapped in #if in Aquila
+    FANS_LOOP(i) {
+      //const int f = info.fan_speed[i];
+	  uint8_t f = info.fan_speed[i]; // Aquila
+      if (f) {
+        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+        gcode.process_subcommands_now(cmd);
+      }
     }
-  }
+  //#endif
 
   // Restore retract and hop state
   #if ENABLED(FWRETRACT)
@@ -437,9 +533,12 @@ void PrintJobRecovery::resume() {
   #if HAS_LEVELING
     // Restore leveling state before 'G92 Z' to ensure
     // the Z stepper count corresponds to the native Z.
-    if (info.fade || info.leveling) {
-      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), dtostrf(info.fade, 1, 1, str_1));
-      gcode.process_subcommands_now(cmd);
+    //if (info.fade || info.flag.leveling) {
+      //sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.flag.leveling), dtostrf(info.fade, 1, 1, str_1));
+    if (info.fade || info.leveling) { // Aquila
+      sprintf_P(cmd, PSTR("M420 S%i Z%s"), int(info.leveling), dtostrf(info.fade, 1, 1, str_1)); // Aquila 
+	  
+	  gcode.process_subcommands_now(cmd);
     }
   #endif
 
@@ -454,8 +553,9 @@ void PrintJobRecovery::resume() {
 
   // Additional purge if configured
   #if POWER_LOSS_PURGE_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F200"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
-    gcode.process_subcommands_now(cmd);
+    //sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
+    sprintf_P(cmd, PSTR("G1 E%d F200"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN)); // Aquila
+	gcode.process_subcommands_now(cmd);
   #endif
 
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
@@ -471,8 +571,10 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
-  #if Z_HOME_DIR > 0
-    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+  //#if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
+    //sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
+  #if Z_HOME_DIR > 0 // Aquila
+    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1); // Aquila
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
     sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
@@ -488,29 +590,47 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Relative axis modes
-  gcode.axis_relative = info.axis_relative;
-
+  gcode.axis_relative = info.axis_relative; // Aquila
+  //TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat); // Not in Aquila
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
     LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
+  
+  // Relative axis modes
+  //gcode.axis_relative = info.axis_relative; // Marlin 2.0.8
+
+  /* ------------ Not in Aquila --------------------
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    const uint8_t old_flags = marlin_debug_flags;
+    marlin_debug_flags |= MARLIN_DEBUG_ECHO;
+  #endif
+
+  // Continue to apply PLR when a file is resumed!
+  enable(true);
+  ------------------------------------------------- */
 
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
-  extern const char M23_STR[];
+  extern const char M23_STR[]; // Aquila						  
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
+
+  //TERN_(DEBUG_POWER_LOSS_RECOVERY, marlin_debug_flags = old_flags); // Not in Aquila
 }
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
-    DEBUG_PRINT_P(prefix);
-    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot));
-    if (info.valid_head) {
+    //DEBUG_ECHOPGM_P(prefix);
+    //DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
+    
+	DEBUG_PRINT_P(prefix); // Aquila
+    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", int(info.valid_head), " valid_foot:", int(info.valid_foot)); // Aquila
+	if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
         LOOP_XYZE(i) {
@@ -541,9 +661,15 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
-        #if EXTRUDERS > 1
+        //#if HAS_MULTI_EXTRUDER
+          //DEBUG_ECHOLNPAIR("active_extruder: ", info.active_extruder);
+        //#endif
+		
+		// Aquila
+		#if EXTRUDERS > 1
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
+		// End Aquila
 
         #if HAS_HOTEND
           DEBUG_ECHOPGM("target_temperature: ");
@@ -561,14 +687,16 @@ void PrintJobRecovery::resume() {
         #if HAS_FAN
           DEBUG_ECHOPGM("fan_speed: ");
           FANS_LOOP(i) {
-            DEBUG_ECHO(int(info.fan_speed[i]));
+            //DEBUG_ECHO(info.fan_speed[i]);
+			DEBUG_ECHO(int(info.fan_speed[i])); // Aquila
             if (i < FAN_COUNT - 1) DEBUG_CHAR(',');
           }
           DEBUG_EOL();
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), " fade: ", info.fade);
+          //DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling, " fade: ", info.fade);
+		  DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), " fade: ", info.fade); // Aquila
         #endif
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
@@ -582,6 +710,9 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
+        
+		//DEBUG_ECHOLNPAIR("dryrun: ", AS_DIGIT(info.flag.dryrun)); // Not in Aquila
+        //DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", info.flag.allow_cold_extrusion); // Not in Aquila
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");

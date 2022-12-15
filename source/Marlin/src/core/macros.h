@@ -116,13 +116,16 @@
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
-  template <class V, class N> static inline void NOLESS(V& v, const N n) {
+  //template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+  template <class V, class N> static inline void NOLESS(V& v, const N n) { // Aquila
     if (n > v) v = n;
   }
-	  template <class V, class N> static inline void NOMORE(V& v, const N n) {
+  //template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+  template <class V, class N> static inline void NOMORE(V& v, const N n) { // Aquila
     if (n < v) v = n;
   }
-	  template <class V, class N1, class N2> static inline void LIMIT(V& v, const N1 n1, const N2 n2) {
+  //template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) { // Aquila
+  template <class V, class N1, class N2> static inline void LIMIT(V& v, const N1 n1, const N2 n2) {
     if (n1 > v) v = n1;
     else if (n2 < v) v = n2;
   }
@@ -538,9 +541,11 @@
 #define PROBE() ~, 1                    // Second item will be 1 if this is passed
 #define _NOT_0 PROBE()
 #define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
-#define _BOOL1(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+//#define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+#define _BOOL1(x) NOT(NOT(x)) // Aquila
 
-#define IF_ELSE(TF) _IF_ELSE(_BOOL1(TF))
+//#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
+#define IF_ELSE(TF) _IF_ELSE(_BOOL1(TF)) // Aquila
 #define _IF_ELSE(TF) _CAT(_IF_, TF)
 
 #define _IF_1(V...) V _IF_1_ELSE
@@ -549,7 +554,8 @@
 #define _IF_1_ELSE(...)
 #define _IF_0_ELSE(V...) V
 
-#define HAS_ARGS(V...) _BOOL1(FIRST(_END_OF_ARGUMENTS_ V)())
+//#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
+#define HAS_ARGS(V...) _BOOL1(FIRST(_END_OF_ARGUMENTS_ V)()) // Aquila
 #define _END_OF_ARGUMENTS_() 0
 
 

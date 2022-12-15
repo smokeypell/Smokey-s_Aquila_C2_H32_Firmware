@@ -200,6 +200,46 @@
   #define E7_ENABLE_PIN -1
 #endif
 
+//
+// Destroy unused CS pins - Marlin 2.0.8
+// Section not in Aquila
+//
+/*
+#if !AXIS_HAS_SPI(X)
+  #undef X_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(Y)
+  #undef Y_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(Z)
+  #undef Z_CS_PIN
+#endif
+#if E_STEPPERS && !AXIS_HAS_SPI(E0)
+  #undef E0_CS_PIN
+#endif
+#if E_STEPPERS > 1 && !AXIS_HAS_SPI(E1)
+  #undef E1_CS_PIN
+#endif
+#if E_STEPPERS > 2 && !AXIS_HAS_SPI(E2)
+  #undef E2_CS_PIN
+#endif
+#if E_STEPPERS > 3 && !AXIS_HAS_SPI(E3)
+  #undef E3_CS_PIN
+#endif
+#if E_STEPPERS > 4 && !AXIS_HAS_SPI(E4)
+  #undef E4_CS_PIN
+#endif
+#if E_STEPPERS > 5 && !AXIS_HAS_SPI(E5)
+  #undef E5_CS_PIN
+#endif
+#if E_STEPPERS > 6 && !AXIS_HAS_SPI(E6)
+  #undef E6_CS_PIN
+#endif
+#if E_STEPPERS > 7 && !AXIS_HAS_SPI(E7)
+  #undef E7_CS_PIN
+#endif
+*/
+
 #ifndef X_CS_PIN
   #define X_CS_PIN -1
 #endif
@@ -326,7 +366,8 @@
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
-#if !defined PSU_CONTROL || !defined(PS_ON_PIN)
+//#if DISABLED(PSU_CONTROL) || !defined(PS_ON_PIN) // Marlin 2.0.8
+#if !defined PSU_CONTROL || !defined(PS_ON_PIN) // Aquila
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
@@ -409,32 +450,38 @@
   #define Z_MIN_PROBE_PIN    -1
 #endif
 
-#ifndef USE_XMAX_PLUG
+//#if DISABLED(USE_XMAX_PLUG) // Marlin 2.0.8
+#ifndef USE_XMAX_PLUG // Aquila
   #undef X_MAX_PIN
   #define X_MAX_PIN          -1
 #endif
 
-#ifndef USE_YMAX_PLUG
+//#if DISABLED(USE_YMAX_PLUG) // Marlin 2.0.8
+#ifndef USE_YMAX_PLUG // Aquila
   #undef Y_MAX_PIN
   #define Y_MAX_PIN          -1
 #endif
 
-#ifndef USE_ZMAX_PLUG
+//#if DISABLED(USE_ZMAX_PLUG) // Marlin 2.0.8
+#ifndef USE_ZMAX_PLUG // Aquila
   #undef Z_MAX_PIN
   #define Z_MAX_PIN          -1
 #endif
 
-#ifndef USE_XMIN_PLUG
+//#if DISABLED(USE_XMIN_PLUG) // Marlin 2.0.8
+#ifndef USE_XMIN_PLUG // Aquila
   #undef X_MIN_PIN
   #define X_MIN_PIN          -1
 #endif
 
-#ifndef USE_YMIN_PLUG
+//#if DISABLED(USE_YMIN_PLUG) // Marlin 2.0.8
+#ifndef USE_YMIN_PLUG // Aquila
   #undef Y_MIN_PIN
   #define Y_MIN_PIN          -1
 #endif
 
-#ifndef USE_ZMIN_PLUG
+//#if DISABLED(USE_ZMIN_PLUG) // Marlin 2.0.8
+#ifndef USE_ZMIN_PLUG // Aquila
   #undef Z_MIN_PIN
   #define Z_MIN_PIN          -1
 #endif
@@ -479,7 +526,8 @@
 // The X2 axis, if any, should be the next open extruder port
 #define X2_E_INDEX E_STEPPERS
 
-#if defined DUAL_X_CARRIAGE || defined X_DUAL_STEPPER_DRIVERS
+//#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) // Marlin 2.0.8
+#if defined DUAL_X_CARRIAGE || defined X_DUAL_STEPPER_DRIVERS // Aquila
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
     #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)

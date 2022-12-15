@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../MarlinCore.h" // for printingIsPaused
-#include "powerloss.h"
+#include "powerloss.h" // Aquila					  
 
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
@@ -190,7 +190,8 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 bool MarlinUI::load_flag=0,
         MarlinUI::unload_flag=0,
-        MarlinUI::pause_action_flag=0;
+        MarlinUI::pause_action_flag=0; // Aquila
+        
 #if ENABLED(SDSUPPORT)
 
   #include "../sd/cardreader.h"
@@ -847,10 +848,13 @@ void MarlinUI::update() {
   #endif
 
   #if HAS_LCD_MENU
-      if (printingIsPaused()&& pause_action_flag &&!planner.has_blocks_queued()){
+    // Aquila
+    if (printingIsPaused()&& pause_action_flag &&!planner.has_blocks_queued()){
            pause_action_flag = 0;
            queue.inject_P(PSTR("G1 F1200 X0 Y0"));
       }
+    // End Aquila
+
     // Handle any queued Move Axis motion
     manual_move.task();
 
@@ -1186,7 +1190,7 @@ void MarlinUI::update() {
    * Warning: This function is called from interrupt context!
    */
   void MarlinUI::update_buttons() {
-		static int16_t press_up_cnt=0;
+    static int16_t press_up_cnt=0; // Aquila                            
     const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
@@ -1197,7 +1201,10 @@ void MarlinUI::update() {
           uint8_t newbutton = 0;
           if (BUTTON_PRESSED(EN1))                 newbutton |= EN_A;
           if (BUTTON_PRESSED(EN2))                 newbutton |= EN_B;
-            if (can_encode() && BUTTON_PRESSED(ENC)) {
+          //if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C; // Marlin 2.0.8
+          
+          // Aquila
+          if (can_encode() && BUTTON_PRESSED(ENC)) {
                 press_up_cnt++;
                 if(press_up_cnt>500){
                     press_up_cnt=0;
@@ -1207,6 +1214,8 @@ void MarlinUI::update() {
             else{
                 press_up_cnt=0;
             }
+          // End Aquila
+          
           if (BUTTON_PRESSED(BACK))                newbutton |= EN_D;
 
         #else
@@ -1375,6 +1384,12 @@ void MarlinUI::update() {
       else if (IS_SD_PRINTING())
         return set_status(card.longest_filename(), true);
     #endif
+    /* // Marlin 2.0.8
+    else if (print_job_timer.isRunning())
+      msg = GET_TEXT(MSG_PRINTING);
+    */
+    
+    // Aquila
     else if (print_job_timer.isRunning()){
             msg = GET_TEXT(MSG_PRINTING);
             if(ui.unload_flag){
@@ -1384,6 +1399,8 @@ void MarlinUI::update() {
                 msg = GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD);
             }
         }
+    // End Aquila
+
     #if SERVICE_INTERVAL_1 > 0
       else if (print_job_timer.needsService(1)) msg = service1;
     #endif
@@ -1506,9 +1523,12 @@ void MarlinUI::update() {
   #if ENABLED(SDSUPPORT)
     extern bool wait_for_user, wait_for_heatup;
   #endif
+  
+// Aquila ------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 void MarlinUI::tempload(){
-      queue.inject_P(PSTR("M140 S0"));
-      queue.enqueue_now_P(PSTR("M109 S235"));
+    queue.inject_P(PSTR("M140 S0"));
+    queue.enqueue_now_P(PSTR("M109 S235"));
 }
 void MarlinUI::auto_Feeding(){
     #if HAS_LCD_MENU
@@ -1564,7 +1584,9 @@ void MarlinUI::abort_load(){
     TERN_(HAS_LCD_MENU, return_to_status());
     SERIAL_ECHOLNPGM("abort_load");
 }
-	
+// End Aquila -----------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
@@ -1601,9 +1623,11 @@ void MarlinUI::abort_load(){
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT); // Show message immediately to let user know about pause in progress
-      gcode.process_subcommands_now(PSTR("M25 P\nM24"));
+      gcode.process_subcommands_now(PSTR("M25 P\nM24")); // Aquila
+      //queue.inject_P(PSTR("M25 P\nM24")); // Marlin 2.0.8
     #elif ENABLED(SDSUPPORT)
-      gcode.process_subcommands_now(PSTR("M25"));
+      gcode.process_subcommands_now(PSTR("M25")); // Aquila
+      //queue.inject_P(PSTR("M25")); // Marlin 2.0.8
     #elif defined(ACTION_ON_PAUSE)
       host_action_pause();
     #endif
@@ -1687,7 +1711,7 @@ void MarlinUI::abort_load(){
     #include "extui/ui_api.h"
   #endif
 
-  static bool removeCarAbortFalg=0;
+  static bool removeCarAbortFalg=0; // Aquila
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
@@ -1703,11 +1727,15 @@ void MarlinUI::abort_load(){
           goto_screen(MEDIA_MENU_GATEWAY);
         #else
           LCD_MESSAGEPGM(MSG_MEDIA_INSERTED);
+          
+          //Aquila
           if(removeCarAbortFalg)
             {
                 removeCarAbortFalg = false;
               TERN_(POWER_LOSS_RECOVERY, recovery.purge());
           }
+          // End Aquila
+          
         #endif
       }
     }
@@ -1718,10 +1746,13 @@ void MarlinUI::abort_load(){
           LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
           #if HAS_LCD_MENU
             if (!defer_return_to_status) return_to_status();
+            // Aquila
             if(printingIsActive()){
               removeCarAbortFalg = true;
                 ui.abort_print();
             }
+            // End Aquila
+            
           #endif
         #endif
       }

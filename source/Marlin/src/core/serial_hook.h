@@ -67,7 +67,7 @@ struct BaseSerial : public SerialBase< BaseSerial<SerialT> >, public SerialT {
 
   SerialFeature features(serial_index_t index) const { return CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
-  // Two implementations of the same method exist in both base classes so indicate the right one
+  // We have 2 implementation of the same method in both base class, let's say which one we want
   using SerialT::available;
   using SerialT::read;
   using SerialT::begin;
@@ -91,7 +91,8 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
 
   bool    & condition;
   SerialT & out;
-  size_t write(uint8_t c) { if (condition) return out.write(c); return 0; }
+  //NO_INLINE size_t write(uint8_t c) { if (condition) return out.write(c); return 0; }
+  size_t write(uint8_t c) { if (condition) return out.write(c); return 0; } // Aquila
   void flush()                      { if (condition) out.flush();  }
   void begin(long br)               { out.begin(br); }
   void end()                        { out.end(); }
@@ -115,7 +116,8 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   typedef SerialBase< ForwardSerial<SerialT> > BaseClassT;
 
   SerialT & out;
-  size_t write(uint8_t c) { return out.write(c); }
+  //NO_INLINE size_t write(uint8_t c) { return out.write(c); }
+  size_t write(uint8_t c) { return out.write(c); } // Aquila
   void flush()            { out.flush();  }
   void begin(long br)     { out.begin(br); }
   void end()              { out.end(); }
@@ -134,7 +136,7 @@ struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   ForwardSerial(const bool e, SerialT & out) : BaseClassT(e), out(out) {}
 };
 
-// A class that can be hooked and unhooked at runtime, useful to capture the output of the serial interface
+// A class that's can be hooked and unhooked at runtime, useful to capturing the output of the serial interface
 template <class SerialT>
 struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public SerialT {
   typedef SerialBase< RuntimeSerial<SerialT> > BaseClassT;
@@ -145,12 +147,14 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   EndOfMessageHook eofHook;
   void *           userPointer;
 
-  size_t write(uint8_t c) {
+  //NO_INLINE size_t write(uint8_t c) {
+  size_t write(uint8_t c) { // Aquila
     if (writeHook) writeHook(userPointer, c);
     return SerialT::write(c);
   }
 
-  void msgDone() {
+  //NO_INLINE void msgDone() {
+  void msgDone() { // Aquila
     if (eofHook) eofHook(userPointer);
   }
 
@@ -209,11 +213,13 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
   static constexpr uint8_t SecondOutput  = (Usage << (offset + step));
   static constexpr uint8_t Both          = FirstOutput | SecondOutput;
 
-  void write(uint8_t c) {
+  //NO_INLINE void write(uint8_t c) {
+  void write(uint8_t c) { // Aquila
     if (portMask.enabled(FirstOutput))   serial0.write(c);
     if (portMask.enabled(SecondOutput))  serial1.write(c);
   }
-  void msgDone() {
+  //NO_INLINE void msgDone() {
+  void msgDone() { // Aquila
     if (portMask.enabled(FirstOutput))   serial0.msgDone();
     if (portMask.enabled(SecondOutput))  serial1.msgDone();
   }
@@ -250,10 +256,12 @@ struct MultiSerial : public SerialBase< MultiSerial<Serial0T, Serial1T, offset, 
   using BaseClassT::read;
 
   // Redirect flush
+  //NO_INLINE void flush()      {
   void flush()      {
     if (portMask.enabled(FirstOutput))   serial0.flush();
     if (portMask.enabled(SecondOutput))  serial1.flush();
   }
+  //NO_INLINE void flushTX()    {
   void flushTX()    {
     if (portMask.enabled(FirstOutput))   CALL_IF_EXISTS(void, &serial0, flushTX);
     if (portMask.enabled(SecondOutput))  CALL_IF_EXISTS(void, &serial1, flushTX);

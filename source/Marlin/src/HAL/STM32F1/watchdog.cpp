@@ -30,18 +30,30 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-#include "../cores/iwdg.h"
+#include "../cores/iwdg.h" // Aquila
+//#include <libmaple/iwdg.h> // Marlin 2.0.8
 #include "watchdog.h"
 
 /**
  *  The watchdog clock is 40Khz. So for a 4s or 8s interval use a /256 preescaler and 625 or 1250 reload value (counts down to 0).
  */
 #define STM32F1_WD_RELOAD TERN(WATCHDOG_DURATION_8S, 1250, 625) // 4 or 8 second timeout
+// Aquila
 bool wdt_init_flag = false;
 void HAL_watchdog_refresh() {
     if(!wdt_init_flag)return;
+    iwdg_feed();
+}
+// End Aquila
+
+/* // Marlin 2.0.8
+void HAL_watchdog_refresh() {
+  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+    TOGGLE(LED_PIN);  // heartbeat indicator
+  #endif
   iwdg_feed();
 }
+*/
 
 void watchdogSetup() {
   // do whatever. don't remove this function.
@@ -55,8 +67,15 @@ void watchdogSetup() {
  * @details The watchdog clock is 40Khz. So for a 4s or 8s interval use a /256 preescaler and 625 or 1250 reload value (counts down to 0).
  */
 void watchdog_init() {
-  iwdg_init();
-  wdt_init_flag = true;
+  
+  iwdg_init(); // Aquila
+  wdt_init_flag = true; // Aquila
+  
+  /* // Marlin 2.0.8
+  #if DISABLED(DISABLE_WATCHDOG_INIT)
+    iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+  #endif
+  */
 }
 
 #endif // USE_WATCHDOG

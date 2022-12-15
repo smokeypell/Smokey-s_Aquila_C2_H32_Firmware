@@ -30,7 +30,9 @@
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
-#ifdef USE_SPI
+
+#ifdef USE_SPI // Aquila
+		  
 #include <SPI.h>
 
 // ------------------------
@@ -168,5 +170,7 @@ void spiSend(uint32_t chan, const uint8_t *buf, size_t n) {
 #endif // SPI_EEPROM
 
 #endif // SOFTWARE_SPI
-#endif
+
+#endif // Aquila
+
 #endif // __STM32F1__

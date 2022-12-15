@@ -205,7 +205,8 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 // private:
 
-xyze_long_t Planner::position={0};
+//xyze_long_t Planner::position{0}; // Marlin 2.0.8
+xyze_long_t Planner::position={0}; // Aquila
 
 uint32_t Planner::acceleration_long_cutoff;
 

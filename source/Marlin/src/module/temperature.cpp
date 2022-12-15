@@ -420,6 +420,12 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
 // private:
 
+// Aquila
+#if EARLY_WATCHDOG
+  bool Temperature::inited = false;
+#endif
+// End Aquila
+
 volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -429,6 +435,25 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #define TEMPDIR(N) ((TEMP_SENSOR_##N##_RAW_LO_TEMP) < (TEMP_SENSOR_##N##_RAW_HI_TEMP) ? 1 : -1)
 
+// Marlin 2.0.8
+/*
+#if HAS_HOTEND
+  // Init mintemp and maxtemp with extreme values to prevent false errors during startup
+  constexpr temp_range_t sensor_heater_0 { TEMP_SENSOR_0_RAW_LO_TEMP, TEMP_SENSOR_0_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_1 { TEMP_SENSOR_1_RAW_LO_TEMP, TEMP_SENSOR_1_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_2 { TEMP_SENSOR_2_RAW_LO_TEMP, TEMP_SENSOR_2_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_3 { TEMP_SENSOR_3_RAW_LO_TEMP, TEMP_SENSOR_3_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_4 { TEMP_SENSOR_4_RAW_LO_TEMP, TEMP_SENSOR_4_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_5 { TEMP_SENSOR_5_RAW_LO_TEMP, TEMP_SENSOR_5_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_6 { TEMP_SENSOR_6_RAW_LO_TEMP, TEMP_SENSOR_6_RAW_HI_TEMP, 0, 16383 },
+                         sensor_heater_7 { TEMP_SENSOR_7_RAW_LO_TEMP, TEMP_SENSOR_7_RAW_HI_TEMP, 0, 16383 };
+
+  temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7);
+#endif
+*/
+// End Marlin 2.0.8
+
+// Aquila
 #if HAS_HOTEND
   // Init mintemp and maxtemp with extreme values to prevent false errors during startup
   constexpr temp_range_t sensor_heater_0 { TEMP_SENSOR_0_RAW_LO_TEMP, TEMP_SENSOR_0_RAW_HI_TEMP, 0, 16383 }/*,
@@ -442,6 +467,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
   temp_range_t Temperature::temp_range[HOTENDS] = ARRAY_BY_HOTENDS(sensor_heater_0/*, sensor_heater_1, sensor_heater_2, sensor_heater_3, sensor_heater_4, sensor_heater_5, sensor_heater_6, sensor_heater_7*/);
 #endif
+// End Aquila
 
 #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
   uint8_t Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
@@ -460,12 +486,26 @@ volatile bool Temperature::raw_temps_ready = false;
           Temperature::soft_pwm_count_fan[FAN_COUNT];
 #endif
 
+// Marlin 2.0.8
+/*
+#if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
+  celsius_t Temperature::singlenozzle_temp[EXTRUDERS];
+  #if HAS_FAN
+    uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
+  #endif
+#endif
+*/
+// End Marlin 2.0.8
+
+// Aquila
 #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
   celsius_t Temperature::singlenozzle_temp[EXTRUDERS];
 #endif
 #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
   uint8_t Temperature::singlenozzle_fan_speed[EXTRUDERS];
+        
 #endif
+// End Aquila
 
 #if ENABLED(PROBING_HEATERS_OFF)
   bool Temperature::paused;
@@ -546,8 +586,8 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
-
-    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
+    
+    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED)); // Aquila
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, temp_range[heater_id].maxtemp - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
@@ -1201,8 +1241,20 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
  *  - Update the heated bed PID output value
  */
 void Temperature::manage_heater() {
+    
+  // Aquila
   if (marlin_state == MF_INITIALIZING) return watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
   HAL_watchdog_refresh();
+  // End Aquila
+
+  // Marlin 2.0.8
+  /*
+  #if EARLY_WATCHDOG
+    // If thermal manager is still not running, make sure to at least reset the watchdog!
+    if (!inited) return watchdog_refresh();
+  #endif
+  */
+  // End Marlin
 
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
@@ -1987,6 +2039,16 @@ void Temperature::init() {
     TERN_(TEMP_SENSOR_1_IS_MAX6675, max6675_1.begin());
   #endif
 
+  // Marlin 2.0.8
+  /*
+  #if EARLY_WATCHDOG
+    // Flag that the thermalManager should be running
+    if (inited) return;
+    inited = true;
+  #endif
+  */
+  // End Marlin 2.0.8
+
   #if MB(RUMBA)
     // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
     #define _AD(N) (TEMP_SENSOR_##N##_IS_AD595 || TEMP_SENSOR_##N##_IS_AD8495)
@@ -2179,7 +2241,7 @@ void Temperature::init() {
   #endif
 
   // Wait for temperature measurement to settle
-  //delay(250);
+  //delay(250); // Commented out in Aquila
 
   #if HAS_HOTEND
 
@@ -2489,9 +2551,31 @@ void Temperature::disable_all_heaters() {
 
 #endif // PROBING_HEATERS_OFF
 
-#if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+//#if ENABLED(SINGLENOZZLE_STANDBY_TEMP) // Marlin 2.0.8
+#if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN) // Aquila
 
+  // Marlin 2.0.8
+  /*
   void Temperature::singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool) {
+    #if HAS_FAN
+      singlenozzle_fan_speed[old_tool] = fan_speed[0];
+      fan_speed[0] = singlenozzle_fan_speed[new_tool];
+    #endif
+    singlenozzle_temp[old_tool] = temp_hotend[0].target;
+    if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
+      setTargetHotend(singlenozzle_temp[new_tool], 0);
+      TERN_(AUTOTEMP, planner.autotemp_update());
+      TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
+      (void)wait_for_hotend(0, false);  // Wait for heating or cooling
+    }
+  }
+
+#endif
+*/
+// End Marlin 2.0.8
+
+// Aquila
+void Temperature::singlenozzle_change(const uint8_t old_tool, const uint8_t new_tool) {
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
       singlenozzle_fan_speed[old_tool] = fan_speed[0];
       fan_speed[0] = singlenozzle_fan_speed[new_tool];
@@ -2508,6 +2592,7 @@ void Temperature::disable_all_heaters() {
   }
 
 #endif
+// End Aquila
 
 #if HAS_MAX_TC
 
@@ -2829,7 +2914,8 @@ void Temperature::readings_ready() {
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  *  - Call planner.isr to count down its "ignore" time
  */
-void HAL_TEMP_TIMER_ISR(void) {
+//HAL_TEMP_TIMER_ISR() { // Marlin 2.0.8
+void HAL_TEMP_TIMER_ISR(void) { // Aquila
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
   Temperature::isr();
@@ -3646,7 +3732,9 @@ void Temperature::isr() {
           ui.reset_status();
         #endif
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
-        TERN_(HAS_LCD_MENU, ui.CompletedMaticHate());
+        
+        TERN_(HAS_LCD_MENU, ui.CompletedMaticHate()); // Aquila
+        
         return true;
       }
 

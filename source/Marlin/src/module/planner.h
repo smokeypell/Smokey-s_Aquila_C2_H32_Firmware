@@ -76,7 +76,8 @@
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
-                            manual_feedrate_mm_s={ _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
+      //manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f }; // Marlin 2.0.8
+      manual_feedrate_mm_s={ _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f }; // Aquila
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -543,7 +544,10 @@ class Planner {
 
       FORCE_INLINE static void set_filament_size(const uint8_t e, const_float_t v) {
         filament_size[e] = v;
-        if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5f); //TODO: should it be per extruder
+        
+        //if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5); //TODO: should it be per extruder // Marlin 2.0.8
+        if (v > 0) volumetric_area_nominal = CIRCLE_AREA(v * 0.5f); // Aquila
+        
         // make sure all extruders have some sane value for the filament size
         LOOP_L_N(i, COUNT(filament_size))
           if (!filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;

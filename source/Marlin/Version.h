@@ -28,20 +28,20 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "SP-C2-H32_v1.0.0"
+#define SHORT_BUILD_VERSION "1.1.0 "
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
+#define DETAILED_BUILD_VERSION "PC3D-C2-H32.1.1.0"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE __DATE__
+ #define STRING_DISTRIBUTION_DATE "2022/12/13"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -65,7 +65,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-//#define WEBSITE_URL "marlinfw.org"
+//#define WEBSITE_URL ""
 
 /**
  * Set the vendor info the serial USB interface, if changable

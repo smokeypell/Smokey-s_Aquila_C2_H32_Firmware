@@ -21,8 +21,7 @@
  */
 #pragma once
 
-#if ENABLED(DWIN_CREALITY_LCD)
-
+#if ENABLED(DWIN_CREALITY_LCD) // Aquila							  
 /********************************************************************************
  * @file     dwin_lcd.h
  * @author   LEO / Creality3D
@@ -213,4 +212,5 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 // Animation Control
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
-#endif
+
+#endif // Aquila

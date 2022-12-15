@@ -67,7 +67,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
         " b_cos=", b_cos
       );
       DEBUG_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
-    //*/
+    */
   }
 
 #endif
@@ -133,7 +133,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
       DEBUG_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
-    //*/
+    */
   }
 
 #elif ENABLED(MP_SCARA)
@@ -173,7 +173,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
       SERIAL_ECHOLNPAIR("  SCARA (x,y) ", x, ",", y," Theta1=", THETA1, " Theta2=", THETA2);
-    //*/
+    */
   }
 
 #elif ENABLED(AXEL_TPARA)

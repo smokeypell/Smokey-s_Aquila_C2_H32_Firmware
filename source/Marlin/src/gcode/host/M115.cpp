@@ -153,7 +153,9 @@ void GcodeSuite::M115() {
     cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
 
     // MEATPACK Compression
-//    cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
+    
+    // Commented out in Aquila
+    //cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

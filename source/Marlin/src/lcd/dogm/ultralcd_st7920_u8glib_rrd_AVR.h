@@ -45,8 +45,12 @@ void ST7920_SWSPI_SND_8BIT(uint8_t val);
   #define U8G_DELAY() DELAY_US(10)
 #endif
 
-#define ST7920_CS()              { U8G_WRITE(ST7920_CS_PIN, HIGH); U8G_DELAY(); }
-#define ST7920_NCS()             { U8G_WRITE(ST7920_CS_PIN, LOW); }
+//#define ST7920_CS()              { WRITE(ST7920_CS_PIN, HIGH); U8G_DELAY(); } // Marlin 2.0.8
+//#define ST7920_NCS()             { WRITE(ST7920_CS_PIN, LOW); } // Marlin 2.0.8
+
+#define ST7920_CS()              { U8G_WRITE(ST7920_CS_PIN, HIGH); U8G_DELAY(); } // Aquila
+#define ST7920_NCS()             { U8G_WRITE(ST7920_CS_PIN, LOW); } // Aquila
+
 #define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); U8G_DELAY(); }
 #define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); U8G_DELAY(); }
 #define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4U)); U8G_DELAY(); }
