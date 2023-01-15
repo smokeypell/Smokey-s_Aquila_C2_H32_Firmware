@@ -191,7 +191,7 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 
   sdio_setup_transfer(SDIO_DATA_TIMEOUT * (F_CPU / 1000U), 512U, SDIO_BLOCKSIZE_512 | SDIO_DCTRL_DMAEN | SDIO_DCTRL_DTEN);
 
-  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) { 
+  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) {
 	//wait
   }
 
